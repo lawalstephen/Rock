@@ -199,11 +199,6 @@ namespace RockWeb.Blocks.Administration
             // Update Spark Data settings
             _sparkDataConfig = Rock.Web.SystemSettings.GetValue( SystemSetting.SPARK_DATA ).FromJsonOrNull<SparkDataConfig>() ?? new SparkDataConfig();
 
-            if ( _sparkDataConfig.NcoaSettings == null )
-            {
-                _sparkDataConfig.NcoaSettings = new NcoaSettings();
-            }
-
             _sparkDataConfig.NcoaSettings.IsAcceptedTerms = cbAcceptTerms.Checked;
             Rock.Web.SystemSettings.SetValue( SystemSetting.SPARK_DATA, _sparkDataConfig.ToJson() );
 
@@ -220,11 +215,6 @@ namespace RockWeb.Blocks.Administration
         {
             // Update Spark Data settings
             _sparkDataConfig = Rock.Web.SystemSettings.GetValue( SystemSetting.SPARK_DATA ).FromJsonOrNull<SparkDataConfig>() ?? new SparkDataConfig();
-
-            if ( _sparkDataConfig.NcoaSettings == null )
-            {
-                _sparkDataConfig.NcoaSettings = new NcoaSettings();
-            }
 
             _sparkDataConfig.NcoaSettings.IsAckPrice = cbAckPrice.Checked;
             Rock.Web.SystemSettings.SetValue( SystemSetting.SPARK_DATA, _sparkDataConfig.ToJson() );
@@ -283,15 +273,9 @@ namespace RockWeb.Blocks.Administration
 
         private void SetStartNcoaEnabled()
         {
-            if ( _sparkDataConfig == null || _sparkDataConfig.NcoaSettings == null )
+            if ( _sparkDataConfig == null )
             {
                 _sparkDataConfig = Rock.Web.SystemSettings.GetValue( SystemSetting.SPARK_DATA ).FromJsonOrNull<SparkDataConfig>() ?? new SparkDataConfig();
-
-                // Get NCOA settings
-                if ( _sparkDataConfig.NcoaSettings == null )
-                {
-                    _sparkDataConfig.NcoaSettings = new NcoaSettings();
-                }
             }
 
             if ( _sparkDataConfig.NcoaSettings.CurrentReportStatus.Contains( "Pending" ) )
@@ -459,12 +443,6 @@ namespace RockWeb.Blocks.Administration
 
             // Get Spark Data
             _sparkDataConfig = Rock.Web.SystemSettings.GetValue( SystemSetting.SPARK_DATA ).FromJsonOrNull<SparkDataConfig>() ?? new SparkDataConfig();
-
-            // Get NCOA settings
-            if ( _sparkDataConfig.NcoaSettings == null )
-            {
-                _sparkDataConfig.NcoaSettings = new NcoaSettings();
-            }
 
             _sparkDataConfig.NcoaSettings.PersonDataViewId = dvpPersonDataView.SelectedValue.AsIntegerOrNull();
             _sparkDataConfig.NcoaSettings.RecurringEnabled = cbRecurringEnabled.Checked;
