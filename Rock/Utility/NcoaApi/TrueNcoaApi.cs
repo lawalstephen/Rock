@@ -34,7 +34,7 @@ namespace Rock.Utility.NcoaApi
     public class TrueNcoaApi
     {
         private string TRUE_NCOA_SERVER = "https://app.testing.truencoa.com"; // "https://app.truencoa.com/api/";
-        private int _batchsize = 100;
+        private int _batchsize = 150;
         private string _username;
         private string _password;
         private RestClient _client = null;

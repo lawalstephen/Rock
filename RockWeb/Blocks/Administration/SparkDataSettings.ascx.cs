@@ -96,11 +96,6 @@ namespace RockWeb.Blocks.Administration
         /// <param name="e"></param>
         protected void bbtnSaveConfig_Click( object sender, EventArgs e )
         {
-            if ( !Page.IsValid )
-            {
-                return;
-            }
-
             SaveSettings();
         }
 

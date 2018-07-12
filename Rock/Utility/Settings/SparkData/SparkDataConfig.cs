@@ -16,6 +16,7 @@
 //
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Rock.Extension;
 
 namespace Rock.Utility.Settings.SparkData
 {
@@ -31,7 +32,7 @@ namespace Rock.Utility.Settings.SparkData
         {
             NcoaSettings = new NcoaSettings();
             SparkDataApiKey = string.Empty;
-            Messages = new List<string>();
+            Messages = new FixedSizeList<string>(30); // Keep last 30 entries
         }
 
         /// <summary>
@@ -71,6 +72,6 @@ namespace Rock.Utility.Settings.SparkData
         /// <value>
         /// The messages.
         /// </value>
-        public List<string> Messages { get; set; }
+        public FixedSizeList<string> Messages { get; set; }
     }
 }

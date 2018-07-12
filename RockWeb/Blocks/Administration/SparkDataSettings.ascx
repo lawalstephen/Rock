@@ -21,7 +21,7 @@
                             <div class="col-md-12">
                                 <div class="row">
                                     <div class="col-md-2">
-                                        <asp:Image ID="imgCheckrImage" runat="server" CssClass="img-responsive" style=" max-width: 25%;"/>
+                                        <img src="/GetImage.ashx?guid=a4654bac-937c-4912-82af-1eb66fed9efe" class="img-responsive">
                                     </div>
                                     <div class="col-md-10">
                                         <div class="row">

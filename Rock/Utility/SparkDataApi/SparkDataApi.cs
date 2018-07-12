@@ -29,6 +29,9 @@ namespace Rock.Utility.SparkDataApi
     {
         internal RestClient _client;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SparkDataApi"/> class.
+        /// </summary>
         public SparkDataApi()
         {
             _client = new RestClient( SparkDataConfig.SPARK_SERVER );
@@ -81,6 +84,11 @@ namespace Rock.Utility.SparkDataApi
             }
         }
 
+        /// <summary>
+        /// Gets the price.
+        /// </summary>
+        /// <param name="service">The service.</param>
+        /// <returns>Price as string</returns>
         public string GetPrice( string service )
         {
             try
