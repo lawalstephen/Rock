@@ -60,7 +60,7 @@ END" );
             #region Page and block
 
             // Add the new page
-            RockMigrationHelper.AddPage( true, "84FD84DF-F58B-4B9D-A407-96276C40AB7E", "D65F783D-87A9-4CC9-8110-E83466A0EADB", "Spark Data Settings", "", "0591e498-0ad6-45a5-b8ca-9bca5c771f03", "fa fa-tachometer", "A2D5F989-1E30-47B9-AAFC-F7EC627AFF21" ); // Site:Rock RMS
+            RockMigrationHelper.AddPage( true, "C831428A-6ACD-4D49-9B2D-046D399E3123", "D65F783D-87A9-4CC9-8110-E83466A0EADB", "Spark Data Settings", "", "0591e498-0ad6-45a5-b8ca-9bca5c771f03", "fa fa-exclamation", "74fb3214-8f11-4d40-a0e9-1aea377e9217" ); // Site:Spark Data
             RockMigrationHelper.UpdateBlockType( "Spark Data Settings", "Block used to set values specific to Spark Data (NCOA, Etc).", "~/Blocks/Administration/SparkDataSettings.ascx", "Administration", "6B6A429D-E42C-70B5-4A04-98E886C45E7A" );
             RockMigrationHelper.AddBlock( true, "0591e498-0ad6-45a5-b8ca-9bca5c771f03", "", "6B6A429D-E42C-70B5-4A04-98E886C45E7A", "Spark Data Settings", "Main", @"", @"", 0, "E7BA08B2-F8CC-2FA8-4677-EA3E776F4EEB" );
 
