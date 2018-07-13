@@ -181,6 +181,18 @@ namespace RockWeb.Blocks.Administration
             _sparkDataConfig.NcoaSettings.IsEnabled = cbNcoaConfiguration.Checked;
 
             Rock.Web.SystemSettings.SetValue( SystemSetting.SPARK_DATA, _sparkDataConfig.ToJson() );
+
+            // Save job active status
+            using ( var rockContext = new RockContext() )
+            {
+                var ncoaJob = new ServiceJobService( rockContext ).Get( Rock.SystemGuid.ServiceJob.GET_NCOA.AsGuid() );
+                if ( ncoaJob != null )
+                {
+                    ncoaJob.IsActive = cbNcoaConfiguration.Checked;
+                    rockContext.SaveChanges();
+                }
+            }
+
             SetPanels();
         }
 
@@ -509,19 +521,7 @@ namespace RockWeb.Blocks.Administration
             _sparkDataConfig.NcoaSettings.IsAcceptedTerms = cbNcoaAcceptTerms.Checked;
             _sparkDataConfig.NcoaSettings.InactiveRecordReasonId = dvpNcoaInactiveRecordReason.SelectedValueAsId();
 
-
             Rock.Web.SystemSettings.SetValue( SystemSetting.SPARK_DATA, _sparkDataConfig.ToJson() );
-
-            // Save job active status
-            using ( var rockContext = new RockContext() )
-            {
-                var ncoaJob = new ServiceJobService( rockContext ).Get( Rock.SystemGuid.ServiceJob.GET_NCOA.AsGuid() );
-                if ( ncoaJob != null )
-                {
-                    ncoaJob.IsActive = cbNcoaConfiguration.Checked;
-                    rockContext.SaveChanges();
-                }
-            }
 
             bbtnNcoaSaveConfig.Enabled = false;
             SetStartNcoaEnabled();
