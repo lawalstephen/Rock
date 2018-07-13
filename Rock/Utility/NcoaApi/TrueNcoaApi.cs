@@ -39,15 +39,12 @@ namespace Rock.Utility.NcoaApi
         private string _password;
         private RestClient _client = null;
 
-        public string Id {get; set;}
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TrueNcoaApi"/> class.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        public TrueNcoaApi( string id, UsernamePassword usernamePassword )
+        public TrueNcoaApi( UsernamePassword usernamePassword )
         {
-            Id = id;
             _username = usernamePassword.UserName;
             _password = usernamePassword.Password;
             CreateRestClient();
@@ -61,7 +58,7 @@ namespace Rock.Utility.NcoaApi
             _client = new RestClient( TRUE_NCOA_SERVER );
             _client.AddDefaultHeader( "user_name", _username );
             _client.AddDefaultHeader( "password", _password );
-            _client.AddDefaultHeader( "content-type", "application/x-www-form-urlencoded" );
+            _client.AddDefaultHeader( "Content-Type", "application/x-www-form-urlencoded" );
         }
 
 
@@ -72,7 +69,7 @@ namespace Rock.Utility.NcoaApi
             {
                 // submit for exporting
                 var request = new RestRequest( $"api/files/{fileName}/index", Method.POST );
-                request.AddParameter( $"application/x-www-form-urlencoded", $"caption={Uri.EscapeDataString(companyName)}", ParameterType.RequestBody );
+                request.AddParameter( "application/x-www-form-urlencoded", $"caption={companyName}", ParameterType.RequestBody );
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
@@ -102,8 +99,8 @@ namespace Rock.Utility.NcoaApi
         /// Uploads the addresses.
         /// </summary>
         /// <param name="addresses">The addresses.</param>
-        /// <param name="fileName">Name of the file.</param>
-        public void UploadAddresses( Dictionary<int, PersonAddressItem> addresses, string fileName )
+        /// <param name="id">Name of the file.</param>
+        public void UploadAddresses( Dictionary<int, PersonAddressItem> addresses, string id )
         {
             try
             {
@@ -120,12 +117,11 @@ namespace Rock.Utility.NcoaApi
                     data.AppendFormat( "{0}={1}&", "address_city_name", personAddressItem.City );
                     data.AppendFormat( "{0}={1}&", "address_state_code", personAddressItem.State );
                     data.AppendFormat( "{0}={1}&", "address_postal_code", personAddressItem.PostalCode );
-                    // data.AppendFormat( "{0}={1}&", "address_country_code", personAddressItem.Country );
+                    data.AppendFormat( "{0}={1}&", "address_country_code", personAddressItem.Country );
 
                     if ( i % _batchsize == 0 || i == addressArray.Length )
                     {
-                        var request = new RestRequest( $"api/files/{fileName}/records", Method.POST );
-                        request.AddHeader( "id", Id );
+                        var request = new RestRequest( $"api/files/{id}/records", Method.POST );
                         request.AddParameter( "application/x-www-form-urlencoded", data.ToString().TrimEnd( '&' ), ParameterType.RequestBody );
                         IRestResponse response = _client.Execute( request );
                         if ( response.StatusCode != HttpStatusCode.OK )
@@ -147,8 +143,7 @@ namespace Rock.Utility.NcoaApi
 
             try
             {
-                var request = new RestRequest( $"api/files/{fileName}", Method.GET );
-                request.AddHeader( "id", Id );
+                var request = new RestRequest( $"api/files/{id}/index", Method.GET );
                 request.AddParameter( "application/x-www-form-urlencoded", "status=submit", ParameterType.RequestBody );
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
@@ -183,14 +178,13 @@ namespace Rock.Utility.NcoaApi
         /// <summary>
         /// Creates the report.
         /// </summary>
-        /// <param name="fileName">Name of the file.</param>
-        public void CreateReport( string fileName )
+        /// <param name="id">Name of the file.</param>
+        public void CreateReport( string id )
         {
             try
             {
                 // submit for processing
-                var request = new RestRequest( $"api/files/{fileName}", Method.PATCH );
-                request.AddHeader( "id", Id );
+                var request = new RestRequest( $"api/files/{id}/index", Method.PATCH );
                 request.AddParameter( "application/x-www-form-urlencoded", "status=submit", ParameterType.RequestBody );
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
@@ -210,16 +204,15 @@ namespace Rock.Utility.NcoaApi
         /// <summary>
         /// Determines whether the report is created.
         /// </summary>
-        /// <param name="fileName">Name of the file.</param>
+        /// <param name="id">Name of the file.</param>
         /// <returns>
         ///   <c>true</c> if the report is created; otherwise, <c>false</c>.
         /// </returns>
-        public bool IsReportCreated( string fileName )
+        public bool IsReportCreated( string id )
         {
             try
             {
-                var request = new RestRequest( $"api/files/{fileName}", Method.GET );
-                request.AddHeader( "id", Id );
+                var request = new RestRequest( $"api/files/{id}/index", Method.GET );
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
@@ -256,16 +249,15 @@ namespace Rock.Utility.NcoaApi
         /// <summary>
         /// Creates the report export.
         /// </summary>
-        /// <param name="fileName">Name of the file.</param>
+        /// <param name="id">Name of the file.</param>
         /// <param name="exportfileid">The export file ID.</param>
-        public void CreateReportExport( string fileName, out string exportfileid )
+        public void CreateReportExport( string id, out string exportfileid )
         {
             exportfileid = null;
             try
             {
                 // submit for exporting
-                var request = new RestRequest( $"api/files/{fileName}", Method.PATCH );
-                request.AddHeader( "id", Id );
+                var request = new RestRequest( $"api/files/{id}/index", Method.PATCH );
                 request.AddParameter( "application/x-www-form-urlencoded", "status=export", ParameterType.RequestBody );
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
@@ -303,8 +295,7 @@ namespace Rock.Utility.NcoaApi
         {
             try
             {
-                var request = new RestRequest( $"api/files/{exportfileid}", Method.GET );
-                request.AddHeader( "id", Id );
+                var request = new RestRequest( $"api/files/{exportfileid}/index", Method.GET );
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
@@ -343,7 +334,6 @@ namespace Rock.Utility.NcoaApi
             try
             {
                 var request = new RestRequest( $"api/files/{exportfileid}/records", Method.GET );
-                request.AddHeader( "id", Id );
                 request.AddParameter( "application/x-www-form-urlencoded", "status=submit", ParameterType.RequestBody );
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )

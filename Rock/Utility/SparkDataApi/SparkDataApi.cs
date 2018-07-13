@@ -45,6 +45,7 @@ namespace Rock.Utility.SparkDataApi
             EnabledCard,
             EnabledNoCard,
             EnabledCardExpired,
+            EnabledCardNoExpirationDate,
             Disabled,
             AccountNoName,
             AccountNotFound,

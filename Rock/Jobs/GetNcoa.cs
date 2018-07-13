@@ -103,6 +103,7 @@ namespace Rock.Jobs
                     context.Result = $"Job finished with error(s).";
 
                     sparkDataConfig.NcoaSettings.CurrentReportStatus = "Failed";
+                    sparkDataConfig.Messages.Add( $"NOCA Job Failed: {RockDateTime.Now.ToString()}");
                     Ncoa.SaveSettings( sparkDataConfig );
 
                     if ( sparkDataConfig.SparkDataApiKey.IsNotNullOrWhitespace() && sparkDataConfig.NcoaSettings.FileName.IsNotNullOrWhitespace() )
@@ -119,6 +120,8 @@ namespace Rock.Jobs
                 else
                 {
                     context.Result = $"Job Complete. NCOA Status: {sparkDataConfig.NcoaSettings.CurrentReportStatus}";
+                    sparkDataConfig.Messages.Add( $"NOCA Job Complete. Status: {sparkDataConfig.NcoaSettings.CurrentReportStatus}: {RockDateTime.Now.ToString()}" );
+                    Ncoa.SaveSettings( sparkDataConfig );
                 }
             }
         }
@@ -140,8 +143,26 @@ namespace Rock.Jobs
         /// <param name="sparkDataConfig">The spark data configuration.</param>
         private void StatusStart( SparkDataConfig sparkDataConfig )
         {
-            var ncoa = new Ncoa();
-            ncoa.Start( sparkDataConfig );
+            if ( sparkDataConfig.NcoaSettings.IsAckPrice && sparkDataConfig.NcoaSettings.IsAcceptedTerms )
+            {
+                var ncoa = new Ncoa();
+                ncoa.Start( sparkDataConfig );
+            }
+            else
+            {
+                if ( !sparkDataConfig.NcoaSettings.IsAckPrice && !sparkDataConfig.NcoaSettings.IsAcceptedTerms )
+                {
+                    throw new Exception( "The NCOA terms of service have not been accepted." );
+                }
+                else if ( !sparkDataConfig.NcoaSettings.IsAcceptedTerms )
+                {
+                    throw new Exception( "The NCOA terms of service have not been accepted." );
+                }
+                else
+                {
+                    throw new Exception( "The price of the NCOA service has not been acknowledged." );
+                }
+            }
         }
 
         /// <summary>
@@ -151,7 +172,8 @@ namespace Rock.Jobs
         /// <param name="sparkDataConfig">The spark data configuration.</param>
         private void StatusComplete( SparkDataConfig sparkDataConfig )
         {
-            if ( !sparkDataConfig.NcoaSettings.LastRunDate.HasValue ||
+            if ( sparkDataConfig.NcoaSettings.IsEnabled &&
+                !sparkDataConfig.NcoaSettings.LastRunDate.HasValue ||
                 ( sparkDataConfig.NcoaSettings.RecurringEnabled &&
                 sparkDataConfig.NcoaSettings.LastRunDate.Value.AddDays( sparkDataConfig.NcoaSettings.RecurrenceInterval ) < RockDateTime.Now ) )
             {

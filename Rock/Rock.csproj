@@ -643,6 +643,7 @@
     <Compile Include="Extension\Component.cs" />
     <Compile Include="Extension\ComponentDescription.cs" />
     <Compile Include="Extension\Container.cs" />
+    <Compile Include="Extension\FixedSizeList.cs" />
     <Compile Include="Extension\IComponentData.cs" />
     <Compile Include="Extension\IContainer.cs" />
     <Compile Include="Extension\SafeDirectoryCatalog.cs" />
@@ -807,9 +808,7 @@
     <Compile Include="Jobs\MigrateAttendanceOccurrenceData.cs" />
     <Compile Include="Jobs\MigrateHistorySummaryData.cs" />
     <Compile Include="Jobs\PostV80DataMigrations.cs" />
-    <Compile Include="Jobs\ProcessNcoaResults.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
+    <Compile Include="Jobs\ProcessNcoaResults.cs" />
     <Compile Include="Jobs\PostV74DataMigrations.cs" />
     <Compile Include="Jobs\MigrateCommunicationMediumData.cs" />
     <Compile Include="Jobs\MigrateInteractionsData.cs" />

@@ -15,6 +15,7 @@
 // </copyright>
 //
 using System;
+using Rock.Data;
 
 namespace Rock.Utility.Settings.SparkData
 {
@@ -140,5 +141,14 @@ namespace Rock.Utility.Settings.SparkData
         ///   <c>true</c> if this instance is acknowledging price; otherwise, <c>false</c>.
         /// </value>
         public bool IsAckPrice { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Id of the Inactive Record Reason <see cref="Rock.Model.DefinedValue"/> to use when inactivating people due to moving beyond the configured number of miles.
+        /// </summary>
+        /// <value>
+        /// A <see cref="System.Int32"/> representing the Id of the Inactive Record Reason <see cref="Rock.Model.DefinedValue"/> to use when inactivating people due to moving beyond the configured number of miles.
+        /// </value>
+        [DefinedValue( SystemGuid.DefinedType.PERSON_RECORD_STATUS_REASON )]
+        public int? InactiveRecordReasonId { get; set; }
     }
 }

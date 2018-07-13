@@ -10,7 +10,7 @@ namespace Rock.Extension
     {
         public int Size { get; private set; }
 
-        public FixedSizeList(int size)
+        public FixedSizeList(int size) : base()
         {
             Size = size;
         }

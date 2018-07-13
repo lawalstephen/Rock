@@ -36,10 +36,10 @@ namespace Rock.Jobs
     /// Job to process NCOA results
     /// </summary>
     [DefinedValueField(Rock.SystemGuid.DefinedType.PERSON_RECORD_STATUS_REASON, "Inactive Reason", 
-        "The reason to use when inactivating people due to move that is beyond the configured number of miles.", true, false, 
+        "The reason to use when inactivating people due to moving beyond the configured number of miles.", true, false, 
         Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_REASON_MOVED, "", 0 )]
     [DisallowConcurrentExecution]
-    public class ProcessNcoaResults : RockBlock, IJob
+    public class ProcessNcoaResults : IJob
     {
         /// <summary> 
         /// Empty constructor for job initialization

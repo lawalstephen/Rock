@@ -152,47 +152,8 @@ namespace Rock.Utility
         }
 
         #endregion
-
-        /// <summary>
-        /// Sends the notification that NCOA finished
-        /// </summary>
-        /// <param name="sparkDataConfig">The spark data configuration.</param>
-        public void SentNotification( SparkDataConfig sparkDataConfig, string status )
-        {
-            if ( !sparkDataConfig.GlobalNotificationApplicationGroupId.HasValue || sparkDataConfig.GlobalNotificationApplicationGroupId.Value == 0 )
-            {
-                return;
-            }
-
-            var recipients = new List<RecipientData>();
-            using ( RockContext rockContext = new RockContext() )
-            {
-                Group group = new GroupService( rockContext ).GetNoTracking( sparkDataConfig.GlobalNotificationApplicationGroupId.Value );
-
-                foreach ( var groupMember in group.Members )
-                {
-                    if ( groupMember.GroupMemberStatus == GroupMemberStatus.Active )
-                    {
-                        var mergeFields = Rock.Lava.LavaHelper.GetCommonMergeFields( null );
-                        mergeFields.Add( "Person", groupMember.Person );
-                        mergeFields.Add( "GroupMember", groupMember );
-                        mergeFields.Add( "Group", groupMember.Group );
-                        mergeFields.Add( "SparkDataService", "National Change of Address (NCOA)" );
-                        mergeFields.Add( "SparkDataConfig", sparkDataConfig );
-                        mergeFields.Add( "Status", status );
-                        recipients.Add( new RecipientData( groupMember.Person.Email, mergeFields ) );
-                    }
-                }
-
-                SystemEmailService emailService = new SystemEmailService( rockContext );
-                SystemEmail systemEmail = emailService.GetNoTracking( SystemGuid.SystemEmail.SPARK_DATA_NOTIFICATION.AsGuid() );
-
-                var emailMessage = new RockEmailMessage( systemEmail.Guid );
-                emailMessage.SetRecipients( recipients );
-                emailMessage.Send();
-            }
-        }
-
+        
+        #region Executing TrueNCOA states
         /// <summary>
         /// Starts the NCOA request.
         /// </summary>
@@ -235,17 +196,16 @@ namespace Rock.Utility
             GroupNameTransactionKey groupNameTransactionKey = sparkDataApi.NcoaIntiateReport( sparkDataConfig.SparkDataApiKey, addresses.Count, sparkDataConfig.NcoaSettings.PersonAliasId );
             sparkDataConfig.NcoaSettings.FileName = groupNameTransactionKey.TransactionKey;
             var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
-            var trueNcoaApi = new TrueNcoaApi( sparkDataConfig.NcoaSettings.CurrentReportKey, credentials );
+            var trueNcoaApi = new TrueNcoaApi( credentials );
 
             string id;
             trueNcoaApi.CreateFile( sparkDataConfig.NcoaSettings.FileName, groupNameTransactionKey.GroupName, out id );
-            trueNcoaApi.Id = id;
-
-            trueNcoaApi.UploadAddresses( addresses, sparkDataConfig.NcoaSettings.FileName );
-
             sparkDataConfig.NcoaSettings.CurrentReportKey = id;
+
+            trueNcoaApi.UploadAddresses( addresses, sparkDataConfig.NcoaSettings.CurrentReportKey );
+
             sparkDataConfig.NcoaSettings.CurrentUploadCount = addresses.Count;
-            trueNcoaApi.CreateReport( sparkDataConfig.NcoaSettings.FileName );
+            trueNcoaApi.CreateReport( sparkDataConfig.NcoaSettings.CurrentReportKey );
             sparkDataConfig.NcoaSettings.CurrentReportStatus = "Pending: Report";
             SaveSettings( sparkDataConfig );
 
@@ -271,14 +231,14 @@ namespace Rock.Utility
 
             SparkDataApi.SparkDataApi sparkDataApi = new SparkDataApi.SparkDataApi();
             var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
-            var trueNcoaApi = new TrueNcoaApi( sparkDataConfig.NcoaSettings.CurrentReportKey, credentials );
-            if ( !trueNcoaApi.IsReportCreated( sparkDataConfig.NcoaSettings.FileName ) )
+            var trueNcoaApi = new TrueNcoaApi( credentials );
+            if ( !trueNcoaApi.IsReportCreated( sparkDataConfig.NcoaSettings.CurrentReportKey ) )
             {
                 return;
             }
 
             string exportFileId;
-            trueNcoaApi.CreateReportExport( sparkDataConfig.NcoaSettings.FileName, out exportFileId );
+            trueNcoaApi.CreateReportExport( sparkDataConfig.NcoaSettings.CurrentReportKey, out exportFileId );
 
             sparkDataConfig.NcoaSettings.CurrentReportExportKey = exportFileId;
             sparkDataConfig.NcoaSettings.CurrentReportStatus = "Pending: Export";
@@ -299,7 +259,7 @@ namespace Rock.Utility
             SparkDataApi.SparkDataApi sparkDataApi = new SparkDataApi.SparkDataApi();
             var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
 
-            var trueNcoaApi = new TrueNcoaApi( sparkDataConfig.NcoaSettings.CurrentReportKey, credentials );
+            var trueNcoaApi = new TrueNcoaApi( credentials );
             if ( !trueNcoaApi.IsReportExportCreated( sparkDataConfig.NcoaSettings.FileName ) )
             {
                 return;
@@ -329,7 +289,58 @@ namespace Rock.Utility
             SentNotification( sparkDataConfig, "finished" );
         }
 
-        #region Settings
+        #endregion
+
+        #region Process NCOA results
+
+        public void ProcessNcoaResults()
+        {
+
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Sends the notification that NCOA finished
+        /// </summary>
+        /// <param name="sparkDataConfig">The spark data configuration.</param>
+        public void SentNotification( SparkDataConfig sparkDataConfig, string status )
+        {
+            if ( !sparkDataConfig.GlobalNotificationApplicationGroupId.HasValue || sparkDataConfig.GlobalNotificationApplicationGroupId.Value == 0 )
+            {
+                return;
+            }
+
+            var recipients = new List<RecipientData>();
+            using ( RockContext rockContext = new RockContext() )
+            {
+                Group group = new GroupService( rockContext ).GetNoTracking( sparkDataConfig.GlobalNotificationApplicationGroupId.Value );
+
+                foreach ( var groupMember in group.Members )
+                {
+                    if ( groupMember.GroupMemberStatus == GroupMemberStatus.Active )
+                    {
+                        var mergeFields = Rock.Lava.LavaHelper.GetCommonMergeFields( null );
+                        mergeFields.Add( "Person", groupMember.Person );
+                        mergeFields.Add( "GroupMember", groupMember );
+                        mergeFields.Add( "Group", groupMember.Group );
+                        mergeFields.Add( "SparkDataService", "National Change of Address (NCOA)" );
+                        mergeFields.Add( "SparkDataConfig", sparkDataConfig );
+                        mergeFields.Add( "Status", status );
+                        recipients.Add( new RecipientData( groupMember.Person.Email, mergeFields ) );
+                    }
+                }
+
+                SystemEmailService emailService = new SystemEmailService( rockContext );
+                SystemEmail systemEmail = emailService.GetNoTracking( SystemGuid.SystemEmail.SPARK_DATA_NOTIFICATION.AsGuid() );
+
+                var emailMessage = new RockEmailMessage( systemEmail.Guid );
+                emailMessage.SetRecipients( recipients );
+                emailMessage.Send();
+            }
+        }
+
+        #region Get/Set Settings
         /// <summary>
         /// Gets the settings.
         /// </summary>
@@ -343,9 +354,14 @@ namespace Rock.Utility
             }
 
 
-            if ( sparkDataConfig == null )
+            if ( sparkDataConfig.NcoaSettings == null )
             {
-                sparkDataConfig = new SparkDataConfig();
+                sparkDataConfig.NcoaSettings = new NcoaSettings();
+            }
+
+            if ( sparkDataConfig.Messages == null )
+            {
+                sparkDataConfig.Messages = new Extension.FixedSizeList<string>( 30 );
             }
 
             return sparkDataConfig;

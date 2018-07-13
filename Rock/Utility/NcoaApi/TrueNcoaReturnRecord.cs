@@ -40,7 +40,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The input individual identifier.
         /// </value>
-        [JsonProperty( "input_individual_id" )]
+        [JsonProperty( "individual_id" )]
         public string InputIndividualId { get; set; }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The input first name of the individual.
         /// </value>
-        [JsonProperty( "input_individual_first_name" )]
+        [JsonProperty( "individual_first_name" )]
         public string InputIndividualFirstName { get; set; }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The input last name of the individual.
         /// </value>
-        [JsonProperty( "input_individual_last_name" )]
+        [JsonProperty( "individual_last_name" )]
         public string InputIndividualLastName { get; set; }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The input address line1.
         /// </value>
-        [JsonProperty( "input_address_line_1" )]
+        [JsonProperty( "address_line_1" )]
         public string InputAddressLine1 { get; set; }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The input address line2.
         /// </value>
-        [JsonProperty( "input_address_line_2" )]
+        [JsonProperty( "address_line_2" )]
         public string InputAddressLine2 { get; set; }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The input address city.
         /// </value>
-        [JsonProperty( "input_address_city_name" )]
+        [JsonProperty( "address_city_name" )]
         public string InputAddressCity { get; set; }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The input address state code.
         /// </value>
-        [JsonProperty( "input_address_state_code" )]
+        [JsonProperty( "address_state_code" )]
         public string InputAddressStateCode { get; set; }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The input address postal code.
         /// </value>
-        [JsonProperty( "input_address_postal_code" )]
+        [JsonProperty( "address_postal_code" )]
         public string InputAddressPostalCode { get; set; }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The input address country code.
         /// </value>
-        [JsonProperty( "input_address_country_code" )]
+        [JsonProperty( "address_country_code" )]
         public string InputAddressCountryCode { get; set; }
 
         /// <summary>
@@ -123,24 +123,6 @@ namespace Rock.Utility.NcoaApi
         /// </value>
         [JsonProperty( "Name ID" )]
         public int NameId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the global identifier.
-        /// </summary>
-        /// <value>
-        /// The global identifier.
-        /// </value>
-        [JsonProperty( "global_id" )]
-        public int GlobalId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the NCOA generated record identifier. Unique per record
-        /// </summary>
-        /// <value>
-        /// The NCOA record identifier.
-        /// </value>
-        [JsonProperty( "record_id" )]
-        public int RecordId { get; set; }
 
         /// <summary>
         /// Gets or sets the first name.
@@ -392,7 +374,7 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The check digit.
         /// </value>
-        [JsonProperty( "check_digit" )]
+        [JsonProperty( "Check Digit" )]
         public string CheckDigit { get; set; }
 
         /// <summary>

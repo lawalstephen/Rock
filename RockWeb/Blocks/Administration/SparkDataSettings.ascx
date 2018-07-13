@@ -74,7 +74,7 @@
                     </asp:Panel>
 
                     <Rock:PanelWidget ID="pwNcoaConfiguration" runat="server" Title="National Change of Address (NCOA)">
-                        <Rock:NotificationBox ID="nbCreditCard" runat="server" NotificationBoxType="Warning"
+                        <Rock:NotificationBox ID="nbNcoaCreditCard" runat="server" NotificationBoxType="Warning"
                             Heading="Note" Text=" This service requires a credit card on file to process payments for running the files."/>
                         <asp:ValidationSummary ID="vsNcoa" runat="server" HeaderText="Please Correct the Following" CssClass="alert alert-validation" ValidationGroup="NcoaValidationGroup" />
                         <div class="row">
@@ -92,26 +92,15 @@
 
                         <hr />
                         <asp:Panel ID="pnlNcoaConfiguration" runat="server" Enabled="false" CssClass="data-integrity-options">
-                            <asp:CheckBox ID="cbAcceptTerms" runat="server" AutoPostBack="true" OnCheckedChanged="cbAcceptTerms_CheckedChanged" Text="By accepting these terms, you agree that Rock RMS may share your data with TrueNCOA for NCOA processing. You understand that through your use
+                            <asp:CheckBox ID="cbNcoaAcceptTerms" runat="server" AutoPostBack="true" OnCheckedChanged="cbNcoaAcceptTerms_CheckedChanged" Text="By accepting these terms, you agree that Rock RMS may share your data with TrueNCOA for NCOA processing. You understand that through your use
                                 of the Services you consent to the collection and use of this information, including the storage, processing and use by TrueNCOA and its affiliates. Customer
                                 information will only be shared by TrueNCOA to provide or improve our products, services and advertising; it will not be shared with third parties for their
                                 marketing purposes. Read TrueNCOA’s full Terms of Service here, and read TrueNCOA’s Privacy Policy here." />
-                            <asp:CheckBox ID="cbAckPrice" runat="server" AutoPostBack="true" OnCheckedChanged="cbAckPrice_CheckedChanged" Text="I ackowledge that running this service will change the card on file &#36;xx for each file run." />
+                            <asp:CheckBox ID="cbNcoaAckPrice" runat="server" AutoPostBack="true" OnCheckedChanged="cbNcoaAckPrice_CheckedChanged" Text="I ackowledge that running this service will change the card on file &#36;xx for each file run." />
                             <br />
                             <div class="row">
                                 <div class="col-md-4">
-                                    <Rock:DataViewPicker ID="dvpPersonDataView" runat="server" Label="Person Data View" Required="true" ValidationGroup="NcoaValidationGroup" Help="Person data view filter to apply." />
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <Rock:NumberBox ID="nbMinMoveDistance" runat="server" AppendText="miles" CssClass="input-width-md" Label="Minimum Move Distance to Inactivate" NumberType="Double" Text="250" Help="Minimum move distance that a person moved before marking the person's account to inactivate" />
-                                </div>
-                                <div class="col-md-4">
-                                    <Rock:RockCheckBox ID="cb48MonAsPrevious" runat="server" Label="Mark 48 Month Move as Previous Addresses" Help="Mark moves in the 19-48 month catagory as a previous address." />
-                                </div>
-                                <div class="col-md-4">
-                                    <Rock:RockCheckBox ID="cbInvalidAddressAsPrevious" runat="server" Label="Mark Invalid Addresses as Previous Addresses" Help="Mark Invalid Addresses as Previous Addresses"/>
+                                    <Rock:DataViewPicker ID="dvpNcoaPersonDataView" runat="server" Label="Person Data View" Required="true" ValidationGroup="NcoaValidationGroup" Help="Person data view filter to apply." OnSelectedIndexChanged="dvpNcoaPersonDataView_SelectedIndexChanged" AutoPostBack="true" />
                                 </div>
                             </div>
 
@@ -119,14 +108,33 @@
 
                             <div class="row">
                                 <div class="col-md-4">
-                                    <Rock:RockCheckBox ID="cbRecurringEnabled" runat="server" Label="Recurring Enabled" OnCheckedChanged="cbRecurringEnabled_CheckedChanged" AutoPostBack="true" Help="Should the job run periodically"/>
+                                    <Rock:NumberBox ID="nbNcoaMinMoveDistance" runat="server" AppendText="miles" CssClass="input-width-md" Label="Minimum Move Distance to Inactivate" NumberType="Double" Text="250" Help="Minimum move distance that a person moved before marking the person's account to inactivate" OnTextChanged="nbNcoaMinMoveDistance_TextChanged" AutoPostBack="true" />
                                 </div>
                                 <div class="col-md-4">
-                                    <Rock:NumberBox ID="nbRecurrenceInterval" runat="server" AppendText="Days" CssClass="input-width-md" Label="Recurrence Interval" NumberType="Integer" Text="95" Required="true" ValidationGroup="NcoaValidationGroup" Help="After how many days should the job automatically start after the last successful run" />
+                                    <Rock:RockCheckBox ID="cbNcoa48MonAsPrevious" runat="server" Label="Mark 48 Month Move as Previous Addresses" Help="Mark moves in the 19-48 month catagory as a previous address." OnCheckedChanged="cbNcoa48MonAsPrevious_CheckedChanged" AutoPostBack="true" />
+                                </div>
+                                <div class="col-md-4">
+                                    <Rock:RockCheckBox ID="cbNcoaInvalidAddressAsPrevious" runat="server" Label="Mark Invalid Addresses as Previous Addresses" Help="Mark Invalid Addresses as Previous Addresses" OnCheckedChanged="cbNcoaInvalidAddressAsPrevious_CheckedChanged" AutoPostBack="true" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <Rock:DefinedValuePicker ID="dvpNcoaInactiveRecordReason" runat="server" Label="Inactive Record Reason" Help="The reason to use when inactivating people due to moving beyond the configured number of miles." Required="true" ValidationGroup="NcoaValidationGroup" OnSelectedIndexChanged="dvpNcoaInactiveRecordReason_SelectedIndexChanged" AutoPostBack="true" />
+                                </div>
+                            </div>
+
+                            <hr />
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <Rock:RockCheckBox ID="cbNcoaRecurringEnabled" runat="server" Label="Recurring Enabled" OnCheckedChanged="cbNcoaRecurringEnabled_CheckedChanged" AutoPostBack="true" Help="Should the job run periodically"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <Rock:NumberBox ID="nbNcoaRecurrenceInterval" runat="server" AppendText="Days" CssClass="input-width-md" Label="Recurrence Interval" NumberType="Integer" Text="95" Required="true" ValidationGroup="NcoaValidationGroup" Help="After how many days should the job automatically start after the last successful run" OnTextChanged="nbNcoaRecurrenceInterval_TextChanged" AutoPostBack="true" />
                                 </div>
                             </div>
                             <div class="actions margin-t-lg">
-                                <Rock:BootstrapButton ID="bbtnSaveConfig" runat="server" CssClass="btn btn-primary" AccessKey="s" ToolTip="Alt+s" OnClick="bbtnSaveConfig_Click" Text="Save"
+                                <Rock:BootstrapButton ID="bbtnNcoaSaveConfig" runat="server" CssClass="btn btn-primary" AccessKey="s" ToolTip="Alt+s" OnClick="bbtnNcoaSaveConfig_Click" Text="Save" Enabled="false"
                                     DataLoadingText="&lt;i class='fa fa-refresh fa-spin'&gt;&lt;/i&gt; Saving" ValidationGroup="NcoaValidationGroup"
                                     CompletedText="Success" CompletedMessage="&nbsp;Changes Have Been Saved!" CompletedDuration="2">
                                 </Rock:BootstrapButton>
