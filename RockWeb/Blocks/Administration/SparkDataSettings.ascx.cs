@@ -43,6 +43,7 @@ namespace RockWeb.Blocks.Administration
         private RockContext _rockContext = new RockContext();
 
         private SparkDataConfig _sparkDataConfig = new SparkDataConfig();
+
         #endregion
 
         #region Base Control Methods
@@ -463,6 +464,10 @@ namespace RockWeb.Blocks.Administration
                             case SparkDataApi.AccountStatus.InvalidSparkDataKey:
                                 hlAccountStatus.LabelType = LabelType.Warning;
                                 hlAccountStatus.Text = "Account does not have a Name";
+                                break;
+                            case SparkDataApi.AccountStatus.EnabledCardNoExpirationDate:
+                                hlAccountStatus.LabelType = LabelType.Warning;
+                                hlAccountStatus.Text = "Enabled - Card Expiration Date not on File";
                                 break;
                         }
 
