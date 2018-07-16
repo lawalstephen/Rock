@@ -116,6 +116,15 @@ namespace Rock.Utility.NcoaApi
         public string InputAddressCountryCode { get; set; }
 
         /// <summary>
+        /// Gets or sets the household position.
+        /// </summary>
+        /// <value>
+        /// The household position.
+        /// </value>
+        [JsonProperty( "Household Position" )]
+        public int HouseholdPosition { get; set; }
+
+        /// <summary>
         /// Gets or sets the name identifier.
         /// </summary>
         /// <value>
@@ -123,69 +132,6 @@ namespace Rock.Utility.NcoaApi
         /// </value>
         [JsonProperty( "Name ID" )]
         public int NameId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the first name.
-        /// </summary>
-        /// <value>
-        /// The first name.
-        /// </value>
-        [JsonProperty( "First Name" )]
-        public string FirstName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the last name.
-        /// </summary>
-        /// <value>
-        /// The last name.
-        /// </value>
-        [JsonProperty( "Last Name" )]
-        public string LastName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the company.
-        /// </summary>
-        /// <value>
-        /// The name of the company.
-        /// </value>
-        [JsonProperty( "Company Name" )]
-        public object CompanyName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the street number.
-        /// </summary>
-        /// <value>
-        /// The street number.
-        /// </value>
-        [JsonProperty( "Street Number" )]
-        public string StreetNumber { get; set; }
-
-        /// <summary>
-        /// Gets or sets the street pre direction.
-        /// </summary>
-        /// <value>
-        /// The street pre direction.
-        /// </value>
-        [JsonProperty( "Street Pre Direction" )]
-        public string StreetPreDirection { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the street.
-        /// </summary>
-        /// <value>
-        /// The name of the street.
-        /// </value>
-        [JsonProperty( "Street Name" )]
-        public string StreetName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the street post direction.
-        /// </summary>
-        /// <value>
-        /// The street post direction.
-        /// </value>
-        [JsonProperty( "Street Post Direction" )]
-        public string StreetPostDirection { get; set; }
 
         /// <summary>
         /// Gets or sets the street suffix.
@@ -276,6 +222,15 @@ namespace Rock.Utility.NcoaApi
         /// </value>
         [JsonProperty( "Address Status" )]
         public string AddressStatus { get; set; }
+
+        /// <summary>
+        /// Gets or sets the individual record identifier.
+        /// </summary>
+        /// <value>
+        /// The individual record identifier.
+        /// </value>
+        [JsonProperty( "Individual Record ID" )]
+        public int IndividualRecordId { get; set; }
 
         /// <summary>
         /// Gets or sets the Delivery Point Verification (DPV) error number.
@@ -432,6 +387,15 @@ namespace Rock.Utility.NcoaApi
         public string Latitude { get; set; }
 
         /// <summary>
+        /// Gets or sets the first name.
+        /// </summary>
+        /// <value>
+        /// The first name.
+        /// </value>
+        [JsonProperty( "First Name" )]
+        public string FirstName { get; set; }
+
+        /// <summary>
         /// Gets or sets the longitude.
         /// </summary>
         /// <value>
@@ -520,6 +484,15 @@ namespace Rock.Utility.NcoaApi
         /// </value>
         [JsonProperty( "Move Applied" )]
         public string MoveApplied { get; set; }
+
+        /// <summary>
+        /// Gets or sets the last name.
+        /// </summary>
+        /// <value>
+        /// The last name.
+        /// </value>
+        [JsonProperty( "Last Name" )]
+        public string LastName { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the move. I - Individual Match  F - Family Match  B - Business Name Match
@@ -752,6 +725,15 @@ namespace Rock.Utility.NcoaApi
         public string CountryCode { get; set; }
 
         /// <summary>
+        /// Gets or sets the name of the company.
+        /// </summary>
+        /// <value>
+        /// The name of the company.
+        /// </value>
+        [JsonProperty( "Company Name" )]
+        public object CompanyName { get; set; }
+
+        /// <summary>
         /// Gets or sets the address line 1.
         /// </summary>
         /// <value>
@@ -776,7 +758,7 @@ namespace Rock.Utility.NcoaApi
         /// The address identifier.
         /// </value>
         [JsonProperty( "Address Id" )]
-        public int AddressId { get; set; }
+        public int? AddressId { get; set; }
 
         /// <summary>
         /// Gets or sets the household identifier.
@@ -784,17 +766,8 @@ namespace Rock.Utility.NcoaApi
         /// <value>
         /// The household identifier.
         /// </value>
-        [JsonProperty( "Household Id" )]        
-        public int HouseholdId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the household position.
-        /// </summary>
-        /// <value>
-        /// The household position.
-        /// </value>
-        [JsonProperty( "Household Position" )]
-        public int HouseholdPosition { get; set; }
+        [JsonProperty( "Household Id" )]
+        public int? HouseholdId { get; set; }
 
         /// <summary>
         /// Gets or sets the individual identifier.
@@ -803,16 +776,43 @@ namespace Rock.Utility.NcoaApi
         /// The individual identifier.
         /// </value>
         [JsonProperty( "Individual Id" )]
-        public int IndividualId { get; set; }
+        public int? IndividualId { get; set; }
 
         /// <summary>
-        /// Gets or sets the individual record identifier.
+        /// Gets or sets the street number.
         /// </summary>
         /// <value>
-        /// The individual record identifier.
+        /// The street number.
         /// </value>
-        [JsonProperty( "Individual Record ID" )]
-        public int IndividualRecordId { get; set; }
+        [JsonProperty( "Street Number" )]
+        public string StreetNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the street pre direction.
+        /// </summary>
+        /// <value>
+        /// The street pre direction.
+        /// </value>
+        [JsonProperty( "Street Pre Direction" )]
+        public string StreetPreDirection { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the street.
+        /// </summary>
+        /// <value>
+        /// The name of the street.
+        /// </value>
+        [JsonProperty( "Street Name" )]
+        public string StreetName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the street post direction.
+        /// </summary>
+        /// <value>
+        /// The street post direction.
+        /// </value>
+        [JsonProperty( "Street Post Direction" )]
+        public string StreetPostDirection { get; set; }
 
         /// <summary>
         /// Convert NCOA Date to DateTime
@@ -859,8 +859,8 @@ namespace Rock.Utility.NcoaApi
                 //PersonId = ( ids?[0] ).AsInteger(),
                 PersonAliasId = ( ids?[1] ).AsInteger(),
                 FamilyId = ( ids?[2] ).AsInteger(),
+                LocationId = ( ids?[3] ).AsInteger(),
                 AddressStatus = AddressStatus == "V" ? Model.AddressStatus.Valid : Model.AddressStatus.Invalid,
-                LocationId = null,
                 MoveDate = NcoaDateToDateTime( MoveApplied ),
                 MoveDistance = (decimal?)MoveDistance,
                 NcoaNote = DeliveryPointVerificationNotes,
