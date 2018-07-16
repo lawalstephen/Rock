@@ -22,11 +22,11 @@ using Rock.Cache;
 using Rock.Data;
 using Rock.Model;
 using Rock.SystemKey;
+using Rock.Utility;
 using Rock.Utility.Settings.SparkData;
+using Rock.Utility.SparkDataApi;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
-using Rock.Utility;
-using Rock.Utility.SparkDataApi;
 
 namespace RockWeb.Blocks.Administration
 {
@@ -545,7 +545,13 @@ namespace RockWeb.Blocks.Administration
             }
             else
             {
-                lbStartNcoa.Enabled = cbNcoaAcceptTerms.Checked && cbNcoaAckPrice.Checked && cbNcoaConfiguration.Checked && !bbtnNcoaSaveConfig.Enabled;
+                lbStartNcoa.Enabled = cbNcoaAcceptTerms.Checked &&
+                    cbNcoaAckPrice.Checked &&
+                    cbNcoaConfiguration.Checked &&
+                    !bbtnNcoaSaveConfig.Enabled &&
+                    dvpNcoaPersonDataView.SelectedValue.IsNotNullOrWhitespace() &&
+                    dvpNcoaInactiveRecordReason.SelectedValue.IsNotNullOrWhitespace() &&
+                    nbNcoaRecurrenceInterval.Text.IsNotNullOrWhitespace();
             }
         }
 
