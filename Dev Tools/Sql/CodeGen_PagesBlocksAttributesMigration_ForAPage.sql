@@ -9,7 +9,7 @@ begin
 
 -- This will generate migrations for *all* the stuff on this specific page only, not just the new stuff
 -- Set this to a pageid that you want to specifically generate all the migration code for, then you can edit out the stuff that you don't need
-DECLARE @PageId int = 1037
+DECLARE @PageId int = 1038
 
 IF OBJECT_ID('tempdb..#codeTable') IS NOT NULL
     DROP TABLE #codeTable
@@ -25,7 +25,7 @@ create table #codeTable (
     SELECT 
 		'            // ' + ISNULL('Page: ' + p.InternalName,'') +
         @crlf + 
-		'            RockMigrationHelper.AddPage(' +
+		'            RockMigrationHelper.AddPage("' +
         ISNULL(CONVERT( nvarchar(50), [pp].[Guid]),'') + '","'+ 
         CONVERT( nvarchar(50), [l].[Guid]) + '","'+ 
         [p].[InternalName]+  '","'+  
