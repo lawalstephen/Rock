@@ -61,7 +61,7 @@ namespace Rock.Utility
 
             var personService = new PersonService( rockContext );
 
-            var personQuery = personService.Queryable();
+            var personQuery = personService.Queryable().AsNoTracking();
 
             var paramExpression = personService.ParameterExpression;
 
@@ -196,7 +196,7 @@ namespace Rock.Utility
                 return;
             }
 
-            GroupNameTransactionKey groupNameTransactionKey = sparkDataApi.NcoaIntiateReport( sparkDataConfig.SparkDataApiKey, addresses.Count, sparkDataConfig.NcoaSettings.PersonAliasId );
+            GroupNameTransactionKey groupNameTransactionKey = sparkDataApi.NcoaIntiateReport( sparkDataConfig.SparkDataApiKey, addresses.Count, sparkDataConfig.NcoaSettings.PersonFullName );
             sparkDataConfig.NcoaSettings.FileName = groupNameTransactionKey.TransactionKey;
             var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
             var trueNcoaApi = new TrueNcoaApi( credentials );
@@ -344,6 +344,23 @@ namespace Rock.Utility
             int? homeValueId = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.GROUP_LOCATION_TYPE_HOME.AsGuid() )?.Id;
             int? previousValueId = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.GROUP_LOCATION_TYPE_PREVIOUS.AsGuid() )?.Id;
 
+            ProcessNcoaResultsInvalidAddress( inactiveReason, markInvalidAsPrevious, mark48MonthAsPrevious, minMoveDistance, homeValueId, previousValueId );
+            ProcessNcoaResults48MonthMove( inactiveReason, markInvalidAsPrevious, mark48MonthAsPrevious, minMoveDistance, homeValueId, previousValueId );
+            ProcessNcoaResultsFamilyMove( inactiveReason, markInvalidAsPrevious, mark48MonthAsPrevious, minMoveDistance, homeValueId, previousValueId );
+            ProcessNcoaResultsIndividualMove( inactiveReason, markInvalidAsPrevious, mark48MonthAsPrevious, minMoveDistance, homeValueId, previousValueId );
+        }
+
+        /// <summary>
+        /// Processes the NCOA results: invalid address.
+        /// </summary>
+        /// <param name="inactiveReason">The inactive reason.</param>
+        /// <param name="markInvalidAsPrevious">if set to <c>true</c> [mark invalid as previous].</param>
+        /// <param name="mark48MonthAsPrevious">if set to <c>true</c> [mark48 month as previous].</param>
+        /// <param name="minMoveDistance">The minimum move distance.</param>
+        /// <param name="homeValueId">The home value identifier.</param>
+        /// <param name="previousValueId">The previous value identifier.</param>
+        private void ProcessNcoaResultsInvalidAddress( CacheDefinedValue inactiveReason, bool markInvalidAsPrevious, bool mark48MonthAsPrevious, decimal? minMoveDistance, int? homeValueId, int? previousValueId )
+        {
             List<int> ncoaIds = null;
             using ( var rockContext = new RockContext() )
             {
@@ -405,7 +422,20 @@ namespace Rock.Utility
                     }
                 }
             }
+        }
 
+        /// <summary>
+        /// Processes the NCOA results: 48 month move.
+        /// </summary>
+        /// <param name="inactiveReason">The inactive reason.</param>
+        /// <param name="markInvalidAsPrevious">if set to <c>true</c> [mark invalid as previous].</param>
+        /// <param name="mark48MonthAsPrevious">if set to <c>true</c> [mark48 month as previous].</param>
+        /// <param name="minMoveDistance">The minimum move distance.</param>
+        /// <param name="homeValueId">The home value identifier.</param>
+        /// <param name="previousValueId">The previous value identifier.</param>
+        private void ProcessNcoaResults48MonthMove( CacheDefinedValue inactiveReason, bool markInvalidAsPrevious, bool mark48MonthAsPrevious, decimal? minMoveDistance, int? homeValueId, int? previousValueId )
+        {
+            List<int> ncoaIds = null;
             // Process the '48 Month Move' NCOA Types
             using ( var rockContext = new RockContext() )
             {
@@ -468,7 +498,20 @@ namespace Rock.Utility
                     }
                 }
             }
+        }
 
+        /// <summary>
+        /// Processes the NCOA results: family move.
+        /// </summary>
+        /// <param name="inactiveReason">The inactive reason.</param>
+        /// <param name="markInvalidAsPrevious">if set to <c>true</c> [mark invalid as previous].</param>
+        /// <param name="mark48MonthAsPrevious">if set to <c>true</c> [mark48 month as previous].</param>
+        /// <param name="minMoveDistance">The minimum move distance.</param>
+        /// <param name="homeValueId">The home value identifier.</param>
+        /// <param name="previousValueId">The previous value identifier.</param>
+        private void ProcessNcoaResultsFamilyMove( CacheDefinedValue inactiveReason, bool markInvalidAsPrevious, bool mark48MonthAsPrevious, decimal? minMoveDistance, int? homeValueId, int? previousValueId )
+        {
+            List<int> ncoaIds = null;
             // Process 'Move' NCOA Types (The 'Family' move types will be processed first)
             using ( var rockContext = new RockContext() )
             {
@@ -568,7 +611,20 @@ namespace Rock.Utility
                     }
                 }
             }
+        }
 
+        /// <summary>
+        /// Processes the NCOA results: individual move.
+        /// </summary>
+        /// <param name="inactiveReason">The inactive reason.</param>
+        /// <param name="markInvalidAsPrevious">if set to <c>true</c> [mark invalid as previous].</param>
+        /// <param name="mark48MonthAsPrevious">if set to <c>true</c> [mark48 month as previous].</param>
+        /// <param name="minMoveDistance">The minimum move distance.</param>
+        /// <param name="homeValueId">The home value identifier.</param>
+        /// <param name="previousValueId">The previous value identifier.</param>
+        private void ProcessNcoaResultsIndividualMove( CacheDefinedValue inactiveReason, bool markInvalidAsPrevious, bool mark48MonthAsPrevious, decimal? minMoveDistance, int? homeValueId, int? previousValueId )
+        {
+            List<int> ncoaIds = null;
             // Process 'Move' NCOA Types (For the remaining Individual move types that weren't updated with the family move)
             using ( var rockContext = new RockContext() )
             {
@@ -676,9 +732,16 @@ namespace Rock.Utility
                     }
                 }
             }
-
         }
 
+        /// <summary>
+        /// Marks as address as previous location.
+        /// </summary>
+        /// <param name="ncoaHistory">The ncoa history.</param>
+        /// <param name="groupLocationService">The group location service.</param>
+        /// <param name="previousValueId">The previous value identifier.</param>
+        /// <param name="changes">The changes.</param>
+        /// <returns></returns>
         private bool MarkAsPreviousLocation( NcoaHistory ncoaHistory, GroupLocationService groupLocationService, int? previousValueId, History.HistoryChangeList changes )
         {
             if ( ncoaHistory.LocationId.HasValue && previousValueId.HasValue )

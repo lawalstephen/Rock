@@ -21,7 +21,7 @@
                             <div class="col-md-12">
                                 <div class="row">
                                     <div class="col-md-2">
-                                        <img src="/GetImage.ashx?guid=a4654bac-937c-4912-82af-1eb66fed9efe" class="img-responsive">
+                                        <img src="/GetImage.ashx?guid=a4654bac-937c-4912-82af-1eb66fed9efe" class="img-responsive" alt="Spark Data">
                                     </div>
                                     <div class="col-md-10">
                                         <div class="row">
@@ -65,12 +65,16 @@
                         <asp:LinkButton ID="btnCancelEdit" runat="server" CssClass="btn btn-default" OnClick="btnCancelEdit_Click">Cancel</asp:LinkButton>
                     </asp:Panel>
 
-                    <asp:Panel ID="pnlAccountStatus" runat="server" CssClass="panel panel-widget panel-heading">
-                        Spark Data Status
+                    <asp:Panel ID="pnlAccountStatus" runat="server" CssClass="panel panel-widget">
+                        <header class="panel-heading clearfix">
+                            <div class="js-header-title pull-left">
+                            <h3 class="panel-title pull-left margin-r-sm">Spark Data Status</h3>
                                     <Rock:HighlightLabel ID="hlAccountStatus" runat="server" LabelType="Success" Text="" />
+                            </div>
                         <div class="pull-right">
                         <asp:LinkButton ID="btnUpdateSettings" runat="server" CssClass="btn btn-default btn-sm" OnClick="btnUpdateSettings_Click" >Update Settings</asp:LinkButton>
                             </div>
+                            </header>
                     </asp:Panel>
 
                     <Rock:PanelWidget ID="pwNcoaConfiguration" runat="server" Title="National Change of Address (NCOA)">

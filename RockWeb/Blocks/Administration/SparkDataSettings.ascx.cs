@@ -252,7 +252,7 @@ namespace RockWeb.Blocks.Administration
         {
             Ncoa ncoa = new Ncoa();
             var sparkDataConfig = Ncoa.GetSettings();
-            sparkDataConfig.NcoaSettings.PersonAliasId = CurrentPersonAliasId;
+            sparkDataConfig.NcoaSettings.PersonFullName = CurrentPerson != null ? CurrentPerson.FullName : null;
             sparkDataConfig.NcoaSettings.CurrentReportStatus = "Start";
             Ncoa.SaveSettings( sparkDataConfig );
             using ( RockContext rockContext = new RockContext() )
@@ -549,9 +549,7 @@ namespace RockWeb.Blocks.Administration
                     cbNcoaAckPrice.Checked &&
                     cbNcoaConfiguration.Checked &&
                     !bbtnNcoaSaveConfig.Enabled &&
-                    dvpNcoaPersonDataView.SelectedValue.IsNotNullOrWhitespace() &&
-                    dvpNcoaInactiveRecordReason.SelectedValue.IsNotNullOrWhitespace() &&
-                    nbNcoaRecurrenceInterval.Text.IsNotNullOrWhitespace();
+                    _sparkDataConfig.NcoaSettings.IsValid();
             }
         }
 

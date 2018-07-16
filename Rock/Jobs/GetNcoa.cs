@@ -57,7 +57,7 @@ namespace Rock.Jobs
             JobDataMap dataMap = context.JobDetail.JobDataMap;
             SparkDataConfig sparkDataConfig = Ncoa.GetSettings();
 
-            if ( !sparkDataConfig.NcoaSettings.IsEnabled )
+            if ( !sparkDataConfig.NcoaSettings.IsEnabled || !sparkDataConfig.NcoaSettings.IsValid() )
             {
                 return;
             }
@@ -178,7 +178,7 @@ namespace Rock.Jobs
                 sparkDataConfig.NcoaSettings.LastRunDate.Value.AddDays( sparkDataConfig.NcoaSettings.RecurrenceInterval ) < RockDateTime.Now ) )
             {
                 sparkDataConfig.NcoaSettings.CurrentReportStatus = "Start";
-                sparkDataConfig.NcoaSettings.PersonAliasId = null;
+                sparkDataConfig.NcoaSettings.PersonFullName = null;
                 Ncoa.SaveSettings( sparkDataConfig );
                 StatusStart( sparkDataConfig );
             }

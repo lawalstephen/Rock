@@ -47,12 +47,12 @@ namespace Rock.Utility.Settings.SparkData
         public bool IsEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets the person alias identifier.
+        /// Gets or sets the person full name.
         /// </summary>
         /// <value>
-        /// The person alias identifier.
+        /// The person full name.
         /// </value>
-        public int? PersonAliasId { get; set; }
+        public string PersonFullName { get; set; }
 
         /// <summary>
         /// Gets or sets the last NCOA run date.
@@ -150,5 +150,19 @@ namespace Rock.Utility.Settings.SparkData
         /// </value>
         [DefinedValue( SystemGuid.DefinedType.PERSON_RECORD_STATUS_REASON )]
         public int? InactiveRecordReasonId { get; set; }
+
+        /// <summary>
+        /// Returns true if the NCOA Settings are valid.
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> if this instance is valid; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsValid()
+        {
+            return InactiveRecordReasonId.HasValue &&
+                InactiveRecordReasonId.Value != 0 &&
+                PersonDataViewId.HasValue &&
+                PersonDataViewId.Value != 0;
+        }
     }
 }

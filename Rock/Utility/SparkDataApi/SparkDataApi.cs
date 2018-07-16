@@ -127,14 +127,14 @@ namespace Rock.Utility.SparkDataApi
         /// <param name="sparkDataApiKey">The spark data API key.</param>
         /// <param name="numberRecords">The number records.</param>
         /// <param name="personAliasId">The person alias identifier.</param>
-        public GroupNameTransactionKey NcoaIntiateReport( string sparkDataApiKey, int? numberRecords, int? personAliasId = null )
+        public GroupNameTransactionKey NcoaIntiateReport( string sparkDataApiKey, int? numberRecords, string personFullName = null )
         {
             try
             {
                 string url;
-                if ( personAliasId.HasValue )
+                if ( personFullName.IsNotNullOrWhitespace() )
                 {
-                    url = $"api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords ?? 0}/{personAliasId.Value}";
+                    url = $"api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords ?? 0}/{personFullName}";
                 }
                 else
                 {
