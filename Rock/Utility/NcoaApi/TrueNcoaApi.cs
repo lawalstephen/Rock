@@ -109,7 +109,12 @@ namespace Rock.Utility.NcoaApi
                 for ( int i = 1; i <= addressArray.Length; i++ )
                 {
                     PersonAddressItem personAddressItem = addressArray[i - 1];
-                    data.AppendFormat( "{0}={1}&", "individual_id", $"{personAddressItem.PersonId}_{personAddressItem.PersonAliasId}_{personAddressItem.FamilyId}" );
+                    if ( personAddressItem.Country.ToUpperInvariant() != "US" || personAddressItem.State.Length == 1 || personAddressItem.State.Length > 2 )
+                    {
+                        continue; // Only support US addresses
+                    }
+
+                    data.AppendFormat( "{0}={1}&", "individual_id", $"{personAddressItem.PersonId}_{personAddressItem.PersonAliasId}_{personAddressItem.FamilyId}_{personAddressItem.LocationId}" );
                     data.AppendFormat( "{0}={1}&", "individual_first_name", personAddressItem.FirstName );
                     data.AppendFormat( "{0}={1}&", "individual_last_name", personAddressItem.LastName );
                     data.AppendFormat( "{0}={1}&", "address_line_1", personAddressItem.Street1 );
@@ -350,19 +355,22 @@ namespace Rock.Utility.NcoaApi
                     obj = JObject.Parse( response.Content ).ToObject<Dictionary<string, object>>();
 
                     var recordsjson = (string)obj["Records"].ToString();
-                    records = JsonConvert.DeserializeObject<List<TrueNcoaReturnRecord>>( recordsjson );
+                    records = JsonConvert.DeserializeObject<List<TrueNcoaReturnRecord>>( recordsjson, new JsonSerializerSettings
+                    {
+                        MissingMemberHandling = MissingMemberHandling.Error
+                    } );
                     DateTime dt = DateTime.Now;
                     records.ForEach( r => r.NcoaRunDateTime = dt );
                 }
-                catch
+                catch ( Exception ex)
                 {
                     if ( obj != null && obj.ContainsKey( "error" ) )
                     {
-                        throw new Exception( $"TrueNCOA error response: {obj["error"]}" );
+                        throw new AggregateException( $"TrueNCOA error response: {obj["error"]}", ex );
                     }
                     else
                     {
-                        throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
+                        throw new AggregateException( $"Failed to deserialize TrueNCOA response: {response.Content}", ex );
                     }
                 }
             }
