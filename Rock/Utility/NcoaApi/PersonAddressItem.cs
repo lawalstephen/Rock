@@ -46,6 +46,13 @@ namespace Rock.Utility.NcoaApi
         public int FamilyId { get; set; }
 
         /// <summary>
+        /// Gets or sets the location identifier.
+        /// </summary>
+        /// <value>
+        /// The location identifier.
+        /// </value>
+        public int LocationId { get; set; }
+        /// <summary>
         /// Gets or sets the first name.
         /// </summary>
         /// <value>

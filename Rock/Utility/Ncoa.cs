@@ -111,6 +111,7 @@ namespace Rock.Utility
                                 gl.GroupLocationTypeValueId == homeLoc.Id ) // CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.GROUP_LOCATION_TYPE_HOME
                             .Select( gl => new
                             {
+                                gl.LocationId,
                                 gl.Location.Street1,
                                 gl.Location.Street2,
                                 gl.Location.City,
@@ -134,6 +135,7 @@ namespace Rock.Utility
                             {
                                 PersonId = g.PersonId,
                                 FamilyId = g.GroupId,
+                                LocationId = g.HomeLocation.LocationId,
                                 PersonAliasId = g.Aliases.Count == 0 ? 0 : g.Aliases.FirstOrDefault().Id,
                                 FirstName = g.FirstName,
                                 LastName = g.LastName,
@@ -284,8 +286,10 @@ namespace Rock.Utility
             sparkDataConfig.NcoaSettings.CurrentReportStatus = "Complete";
             SaveSettings( sparkDataConfig );
 
-            sparkDataApi.NcoaCompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
+            ProcessNcoaResults( sparkDataConfig );
 
+            sparkDataApi.NcoaCompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
+            
             //Notify group
             SentNotification( sparkDataConfig, "finished" );
         }
