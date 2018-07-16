@@ -55,7 +55,7 @@ public class Mailgun : IHttpHandler
         using ( var rockContext = new Rock.Data.RockContext() )
         {
             // We need to get the transport type now that there are two
-            var emailMediumEntity = Rock.Cache.CacheEntityType.Get( "Rock.Communication.Medium.Email" );
+            var emailMediumEntity = EntityTypeCache.Get( "Rock.Communication.Medium.Email" );
 
             var emailMediumAttribute = new AttributeService( rockContext )
                     .Queryable()
@@ -67,7 +67,7 @@ public class Mailgun : IHttpHandler
                     .Where( v => v.AttributeId == emailMediumAttribute.Id )
                     .FirstOrDefault();
 
-            var mailgunEntity = Rock.Cache.CacheEntityType.Get( emailMediumAttributeValue.Value.AsGuid(), rockContext );
+            var mailgunEntity = EntityTypeCache.Get( emailMediumAttributeValue.Value.AsGuid(), rockContext );
 
             if ( mailgunEntity != null )
             {

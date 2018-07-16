@@ -27,7 +27,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Rock.Data;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Security;
 
 namespace Rock.Model
@@ -367,7 +367,7 @@ Registration By: {0} Total Cost/Fees:{1}
         {
             // Setup Note settings
             Registration registration = this;
-            CacheNoteType noteType = null;
+            NoteTypeCache noteType = null;
             using ( RockContext rockContext = new RockContext() )
             {
                 RegistrationInstance registrationInstance = registration.RegistrationInstance ?? new RegistrationInstanceService( rockContext ).Get( registration.RegistrationInstanceId );
@@ -375,7 +375,7 @@ Registration By: {0} Total Cost/Fees:{1}
 
                 if ( registrationTemplate != null && registrationTemplate.AddPersonNote )
                 {
-                    noteType = CacheNoteType.Get( Rock.SystemGuid.NoteType.PERSON_EVENT_REGISTRATION.AsGuid() );
+                    noteType = NoteTypeCache.Get( Rock.SystemGuid.NoteType.PERSON_EVENT_REGISTRATION.AsGuid() );
                     if ( noteType != null )
                     {
                         var noteService = new NoteService( rockContext );
@@ -1193,7 +1193,7 @@ Registration By: {0} Total Cost/Fees:{1}
             {
                 if ( person != null )
                 {
-                    CacheDefinedValue dvPhone = null;
+                    DefinedValueCache dvPhone = null;
 
                     switch ( Field.PersonFieldType )
                     {
@@ -1223,17 +1223,17 @@ Registration By: {0} Total Cost/Fees:{1}
                         case RegistrationPersonFieldType.MaritalStatus: return person.MaritalStatusValueId;
                         case RegistrationPersonFieldType.MobilePhone:
                             {
-                                dvPhone = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_MOBILE );
+                                dvPhone = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_MOBILE );
                                 break;
                             }
                         case RegistrationPersonFieldType.HomePhone:
                             {
-                                dvPhone = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_HOME );
+                                dvPhone = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_HOME );
                                 break;
                             }
                         case RegistrationPersonFieldType.WorkPhone:
                             {
-                                dvPhone = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_WORK );
+                                dvPhone = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_WORK );
                                 break;
                             }
                         case RegistrationPersonFieldType.ConnectionStatus: return person.ConnectionStatusValueId;
@@ -1251,7 +1251,7 @@ Registration By: {0} Total Cost/Fees:{1}
             }
             else
             {
-                var attribute = CacheAttribute.Get( Field.AttributeId ?? 0 );
+                var attribute = AttributeCache.Get( Field.AttributeId ?? 0 );
                 if ( attribute != null )
                 {
                     switch ( Field.FieldSource )

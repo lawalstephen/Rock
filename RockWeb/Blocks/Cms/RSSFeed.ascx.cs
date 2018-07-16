@@ -29,7 +29,7 @@ using Rock.Web.UI;
 using Rock.Web.UI.Controls;
 using Rock.Web;
 using Rock.Security;
-using Rock.Cache;
+using Rock.Web.Cache;
 
 namespace RockWeb.Blocks.Cms
 {

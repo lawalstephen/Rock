@@ -26,7 +26,7 @@ using DotLiquid;
 
 using Rock;
 using Rock.Attribute;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Data;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
@@ -92,13 +92,13 @@ namespace RockWeb.Blocks.Cms
         {
             try
             {
-                CachePage currentPage = CachePage.Get( RockPage.PageId );
-                CachePage rootPage = null;
+                PageCache currentPage = PageCache.Get( RockPage.PageId );
+                PageCache rootPage = null;
 
                 Guid? rootPageGuid = GetAttributeValue( ROOT_PAGE ).AsGuidOrNull();
                 if ( rootPageGuid.HasValue && !rootPageGuid.Value.IsEmpty() )
                 {
-                    rootPage = CachePage.Get( rootPageGuid.Value );
+                    rootPage = PageCache.Get( rootPageGuid.Value );
                 }
 
                 // If a root page was not found, use current page
@@ -202,7 +202,7 @@ namespace RockWeb.Blocks.Cms
         /// </summary>
         /// <param name="site">The site.</param>
         /// <returns>A dictionary of various page ids for the site.</returns>
-        private Dictionary<string, object> GetSiteProperties( CacheSite site )
+        private Dictionary<string, object> GetSiteProperties( SiteCache site )
         {
             var properties = new Dictionary<string, object>();
             properties.Add( "DefaultPageId", site.DefaultPageId );

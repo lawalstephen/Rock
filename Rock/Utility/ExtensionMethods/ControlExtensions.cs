@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web.UI.WebControls;
+using Rock.Web.Cache;
 
 namespace Rock
 {
@@ -488,20 +489,7 @@ namespace Rock
         /// <param name="definedType">Type of the defined.</param>
         /// <param name="insertBlankOption">if set to <c>true</c> [insert blank option].</param>
         /// <param name="useDescriptionAsText">if set to <c>true</c> [use description as text].</param>
-        [Obsolete]
-        public static void BindToDefinedType( this ListControl listControl, Web.Cache.DefinedTypeCache definedType, bool insertBlankOption = false, bool useDescriptionAsText = false )
-        {
-            BindToDefinedType( listControl, Cache.CacheDefinedType.Get( definedType.Id ), insertBlankOption, useDescriptionAsText );
-        }
-
-        /// <summary>
-        /// Binds to the values of a definedType using the definedValue's Id as the listitem value
-        /// </summary>
-        /// <param name="listControl">The list control.</param>
-        /// <param name="definedType">Type of the defined.</param>
-        /// <param name="insertBlankOption">if set to <c>true</c> [insert blank option].</param>
-        /// <param name="useDescriptionAsText">if set to <c>true</c> [use description as text].</param>
-        public static void BindToDefinedType( this ListControl listControl, Cache.CacheDefinedType definedType, bool insertBlankOption = false, bool useDescriptionAsText = false )
+        public static void BindToDefinedType( this ListControl listControl, DefinedTypeCache definedType, bool insertBlankOption = false, bool useDescriptionAsText = false )
         {
             var ds = definedType.DefinedValues
                 .Select( v => new
