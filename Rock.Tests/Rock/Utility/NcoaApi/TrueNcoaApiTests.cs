@@ -475,7 +475,7 @@ namespace Rock.Tests.Rock.Utility.NcoaApi
         }
 
         [Fact]
-        public void Records_Contains_Individual_Id()
+        public void Records_Contains_Individual_space_Id()
         {
             bool output = _trueNcoaApiFixture.ResponseColumns.Contains( "Individual Id" );
             Assert.True( output );
