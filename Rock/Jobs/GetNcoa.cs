@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Quartz;
+using Rock.Data;
 using Rock.Model;
 using Rock.Utility;
 using Rock.Utility.Settings.SparkData;
@@ -103,7 +104,7 @@ namespace Rock.Jobs
                     context.Result = $"Job finished with error(s).";
 
                     sparkDataConfig.NcoaSettings.CurrentReportStatus = "Failed";
-                    sparkDataConfig.Messages.Add( $"NOCA Job Failed: {RockDateTime.Now.ToString()}");
+                    sparkDataConfig.Messages.Add( $"NOCA Job Failed: {RockDateTime.Now.ToString()}" );
                     Ncoa.SaveSettings( sparkDataConfig );
 
                     if ( sparkDataConfig.SparkDataApiKey.IsNotNullOrWhitespace() && sparkDataConfig.NcoaSettings.FileName.IsNotNullOrWhitespace() )
@@ -112,15 +113,29 @@ namespace Rock.Jobs
                         sparkDataApi.NcoaCompleteFailed( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.FileName );
                     }
 
-                    Exception ex = new AggregateException( "One or more NCOA requirement failed ", exceptions );
+                    Exception ex = new AggregateException( "One or more NCOA requirement failed.", exceptions );
                     HttpContext context2 = HttpContext.Current;
                     ExceptionLogService.LogException( ex, context2 );
                     throw ex;
                 }
                 else
                 {
-                    context.Result = $"Job Complete. NCOA Status: {sparkDataConfig.NcoaSettings.CurrentReportStatus}";
-                    sparkDataConfig.Messages.Add( $"NOCA Job Complete. Status: {sparkDataConfig.NcoaSettings.CurrentReportStatus}: {RockDateTime.Now.ToString()}" );
+                    string msg;
+                    if ( sparkDataConfig.NcoaSettings.CurrentReportStatus == "Complete" )
+                    {
+                        using ( RockContext rockContext = new RockContext() )
+                        {
+                            NcoaHistoryService ncoaHistoryService = new NcoaHistoryService( rockContext );
+                            msg = $"NCOA Complete: {ncoaHistoryService.Count()} addresses processed, {ncoaHistoryService.MovedCount()} were marked as 'moved'";
+                        }
+                    }
+                    else
+                    {
+                        msg = $"Job Complete. NCOA Status: {sparkDataConfig.NcoaSettings.CurrentReportStatus}";
+                    }
+
+                    context.Result = msg;
+                    sparkDataConfig.Messages.Add( $"{msg}: {RockDateTime.Now.ToString()}" );
                     Ncoa.SaveSettings( sparkDataConfig );
                 }
             }
