@@ -159,6 +159,18 @@ namespace Rock.Web.Cache
         }
 
         /// <summary>
+        /// Reads the specified class name.
+        /// </summary>
+        /// <param name="className">Name of the class.</param>
+        /// <param name="rockContext">The rock context.</param>
+        /// <returns></returns>
+        [Obsolete("Use Get Instead")]
+        public static RestControllerCache Read( string className, RockContext rockContext = null )
+        {
+            return Get( className, rockContext );
+        }
+
+        /// <summary>
         /// Queries the database by API identifier.
         /// </summary>
         /// <param name="className">Name of the class.</param>

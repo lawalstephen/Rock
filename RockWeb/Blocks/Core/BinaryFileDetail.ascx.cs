@@ -27,6 +27,7 @@ using Rock.Model;
 using Rock.Web.UI;
 using Rock.Security;
 using System.IO;
+using Rock.Web.Cache;
 
 namespace RockWeb.Blocks.Core
 {

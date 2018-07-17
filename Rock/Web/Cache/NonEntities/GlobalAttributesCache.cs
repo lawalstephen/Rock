@@ -155,6 +155,32 @@ namespace Rock.Web.Cache
 
         #endregion
 
+        #region Obsolete Methods
+
+        /// <summary>
+        /// Reads this instance.
+        /// </summary>
+        /// <returns></returns>
+        [Obsolete( "Use Get instead" )]
+        public static GlobalAttributesCache Read()
+        {
+            return Get();
+        }
+
+        /// <summary>
+        /// Reads the specified rock context.
+        /// </summary>
+        /// <param name="rockContext">The rock context.</param>
+        /// <returns></returns>
+        [Obsolete( "Use Get instead" )]
+        public static GlobalAttributesCache Read( RockContext rockContext )
+        {
+            return Get();
+        }
+
+        #endregion
+
+
         #region Public Methods
 
         /// <summary>

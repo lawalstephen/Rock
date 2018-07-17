@@ -496,6 +496,9 @@
     <Compile Include="Web\Cache\Entities\InteractionComponentCache.cs" />
     <Compile Include="Web\Cache\Entities\LavaShortcodeCache.cs" />
     <Compile Include="Web\Cache\Entities\NoteTypeCache.cs" />
+    <Compile Include="Web\Cache\Entities\Obsolete\CachedEntity.cs" />
+    <Compile Include="Web\Cache\Entities\Obsolete\CachedModel.cs" />
+    <Compile Include="Web\Cache\Entities\Obsolete\RockMemoryCache.cs" />
     <Compile Include="Web\Cache\Entities\PersonBadgeCache.cs" />
     <Compile Include="Web\Cache\Entities\RestActionCache.cs" />
     <Compile Include="Web\Cache\Entities\RestControllerCache.cs" />

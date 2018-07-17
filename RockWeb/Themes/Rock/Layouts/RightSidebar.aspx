@@ -15,7 +15,7 @@
         var rockPage = this.Page as Rock.Web.UI.RockPage;
         if (rockPage != null)
         {
-            var pageCache = PageCache.Get( rockPage.PageId );
+            var pageCache = Rock.Web.Cache.PageCache.Get( rockPage.PageId );
             if (pageCache != null )
             {
                 if (pageCache.PageDisplayTitle == false || string.IsNullOrWhiteSpace( rockPage.PageTitle ) )

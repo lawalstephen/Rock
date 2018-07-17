@@ -515,11 +515,11 @@ namespace Rock
         /// Returns the Value as Int or null if Value is <see cref="T:Rock.Constants.None"/>.
         /// </summary>
         /// <param name="listControl">The list control.</param>
-        /// <param name="NoneAsNull">if set to <c>true</c>, will return Null if SelectedValue = <see cref="T:Rock.Constants.None" /> </param>
+        /// <param name="noneAsNull">if set to <c>true</c>, will return Null if SelectedValue = <see cref="T:Rock.Constants.None" /> </param>
         /// <returns></returns>
-        public static int? SelectedValueAsInt( this ListControl listControl, bool NoneAsNull = true )
+        public static int? SelectedValueAsInt( this ListControl listControl, bool noneAsNull = true )
         {
-            if ( NoneAsNull )
+            if ( noneAsNull )
             {
                 if ( listControl == null || listControl.SelectedValue.Equals( Rock.Constants.None.Id.ToString() ) )
                 {

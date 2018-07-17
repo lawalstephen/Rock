@@ -258,18 +258,6 @@ namespace Rock.Web.Cache
         }
 
         /// <summary>
-        /// Reads the specified model.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        /// <param name="qualifiers">The qualifiers.</param>
-        /// <returns></returns>
-        [Obsolete( "Use Get instead" )]
-        public static T Read( TT model, Dictionary<string, string> qualifiers )
-        {
-            return Read( model, qualifiers );
-        }
-
-        /// <summary>
         /// Flushes the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>

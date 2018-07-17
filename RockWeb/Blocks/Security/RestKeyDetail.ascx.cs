@@ -106,7 +106,7 @@ namespace RockWeb.Blocks.Security
                 }
 
                 // the description gets saved as a system note for the person
-                var noteType = CacheNoteType.Get( Rock.SystemGuid.NoteType.PERSON_TIMELINE_NOTE.AsGuid() );
+                var noteType = NoteTypeCache.Get( Rock.SystemGuid.NoteType.PERSON_TIMELINE_NOTE.AsGuid() );
                 if ( noteType != null )
                 {
                     var noteService = new NoteService( rockContext );

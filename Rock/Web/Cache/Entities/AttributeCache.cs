@@ -523,6 +523,18 @@ namespace Rock.Web.Cache
 
         }
 
+        /// <summary>
+        /// Reads the specified attribute model.
+        /// </summary>
+        /// <param name="attributeModel">The attribute model.</param>
+        /// <param name="qualifiers">The qualifiers.</param>
+        /// <returns></returns>
+        [Obsolete("Use Get instead")]
+        public static AttributeCache Read( Rock.Model.Attribute attributeModel, Dictionary<string, string> qualifiers )
+        {
+            return Get( attributeModel, qualifiers );
+        }
+
         #endregion
 
         #region ILiquidizable Implementation
@@ -614,6 +626,15 @@ namespace Rock.Web.Cache
         /// Flushes the entity attributes.
         /// </summary>
         public static void RemoveEntityAttributes()
+        {
+            EntityAttributesCache.Remove();
+        }
+
+        /// <summary>
+        /// Flushes the entity attributes.
+        /// </summary>
+        [Obsolete( "Use RemoveEntityAttributes instead" )]
+        public static void FlushEntityAttributes()
         {
             EntityAttributesCache.Remove();
         }

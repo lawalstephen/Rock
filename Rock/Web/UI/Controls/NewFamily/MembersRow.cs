@@ -247,7 +247,7 @@ namespace Rock.Web.UI.Controls
         /// </value>
         public int? GradeOffset
         {
-            get { return _ddlGradePicker.SelectedValueAsInt( NoneAsNull: false ); }
+            get { return _ddlGradePicker.SelectedValueAsInt( noneAsNull: false ); }
             set { SetListValue( _ddlGradePicker, value ); }
         }
 

@@ -27,8 +27,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Rock.Data;
-using Rock.Web.Cache;
 using Rock.Security;
+using Rock.Web.Cache;
 
 namespace Rock.Model
 {
@@ -363,6 +363,13 @@ Registration By: {0} Total Cost/Fees:{1}
             SavePersonNotesAndHistory( registrationPerson.FirstName, registrationPerson.LastName, currentPersonAliasId, previousRegistrantPersonIds );
         }
 
+        /// <summary>
+        /// Saves the person notes and history.
+        /// </summary>
+        /// <param name="registrationPersonFirstName">First name of the registration person.</param>
+        /// <param name="registrationPersonLastName">Last name of the registration person.</param>
+        /// <param name="currentPersonAliasId">The current person alias identifier.</param>
+        /// <param name="previousRegistrantPersonIds">The previous registrant person ids.</param>
         public void SavePersonNotesAndHistory( string registrationPersonFirstName, string registrationPersonLastName, int? currentPersonAliasId, List<int> previousRegistrantPersonIds )
         {
             // Setup Note settings
@@ -1183,19 +1190,19 @@ Registration By: {0} Total Cost/Fees:{1}
         /// <param name="registrant">The registrant.</param>
         /// <param name="person">The person.</param>
         /// <param name="family">The family.</param>
-        /// <param name="Field">The field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="rockContext">The rock context.</param>
         /// <returns></returns>
         public object GetRegistrantValue( RegistrationRegistrant registrant, Person person, Group family,
-            RegistrationTemplateFormField Field, RockContext rockContext )
+            RegistrationTemplateFormField field, RockContext rockContext )
         {
-            if ( Field.FieldSource == RegistrationFieldSource.PersonField )
+            if ( field.FieldSource == RegistrationFieldSource.PersonField )
             {
                 if ( person != null )
                 {
                     DefinedValueCache dvPhone = null;
 
-                    switch ( Field.PersonFieldType )
+                    switch ( field.PersonFieldType )
                     {
                         case RegistrationPersonFieldType.FirstName: return person.NickName;
                         case RegistrationPersonFieldType.LastName: return person.LastName;
@@ -1251,10 +1258,10 @@ Registration By: {0} Total Cost/Fees:{1}
             }
             else
             {
-                var attribute = AttributeCache.Get( Field.AttributeId ?? 0 );
+                var attribute = AttributeCache.Get( field.AttributeId ?? 0 );
                 if ( attribute != null )
                 {
-                    switch ( Field.FieldSource )
+                    switch ( field.FieldSource )
                     {
                         case RegistrationFieldSource.PersonAttribute:
                             {

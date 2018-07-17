@@ -169,10 +169,10 @@ namespace RockWeb.Blocks.Prayer
 
             if ( NoteTypeId.HasValue )
             {
-                var noteType = CacheNoteType.Get( NoteTypeId.Value );
+                var noteType = NoteTypeCache.Get( NoteTypeId.Value );
                 if ( noteType != null )
                 {
-                    notesComments.NoteOptions.NoteTypes = new CacheNoteType[] { noteType };
+                    notesComments.NoteOptions.NoteTypes = new NoteTypeCache[] { noteType };
                 }
             }
 

@@ -139,7 +139,8 @@ namespace Rock.Web.Cache
             base.SetFromEntity( entity );
 
             var shortcode = entity as LavaShortcode;
-            if ( shortcode == null ) return;
+            if ( shortcode == null )
+                return;
 
             IsSystem = shortcode.IsSystem;
             Name = shortcode.Name;
@@ -162,6 +163,28 @@ namespace Rock.Web.Cache
         public override string ToString()
         {
             return Name;
+        }
+
+        /// <summary>
+        /// Reads the specified tag name.
+        /// </summary>
+        /// <param name="tagName">Name of the tag.</param>
+        /// <param name="rockContext">The rock context.</param>
+        /// <returns></returns>
+        [Obsolete( "No Longer Supported" )]
+        public static LavaShortcodeCache Read( string tagName, RockContext rockContext = null )
+        {
+            return LavaShortcodeCache.All().Where( c => c.TagName == tagName ).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Returns all Lava shortcodes
+        /// </summary>
+        /// <param name="includeInactive">if set to <c>true</c> [include inactive].</param>
+        /// <returns></returns>
+        public static List<LavaShortcodeCache> All( bool includeInactive )
+        {
+            return All().Where( a => includeInactive || a.IsActive ).ToList();
         }
 
         #endregion

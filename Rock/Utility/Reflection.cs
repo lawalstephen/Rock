@@ -294,14 +294,5 @@ namespace Rock
 
             return _pluginAssemblies.ToList();
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public class RockAssemblyInfo
-        {
-            public string FilePath { get; set; }
-            public bool IsRockAssembly { get; set; }
-        }
     }
 }

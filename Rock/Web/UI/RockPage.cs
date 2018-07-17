@@ -2757,8 +2757,8 @@ Sys.Application.add_load(function () {
         /// </summary>
         /// <param name="page">The page.</param>
         /// <param name="script">The script.</param>
-        /// <param name="AddScriptTags">if set to <c>true</c> [add script tags].</param>
-        public static void AddScriptToHead( Page page, string script, bool AddScriptTags )
+        /// <param name="addScriptTags">if set to <c>true</c> [add script tags].</param>
+        public static void AddScriptToHead( Page page, string script, bool addScriptTags )
         {
             if ( page != null && page.Header != null )
             {
@@ -2766,7 +2766,7 @@ Sys.Application.add_load(function () {
 
                 Literal l = new Literal();
 
-                if ( AddScriptTags )
+                if ( addScriptTags )
                 {
                     l.Text = string.Format( @"
     <script type=""text/javascript""> 

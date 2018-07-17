@@ -286,7 +286,7 @@ namespace RockWeb.Blocks.WorkFlow
 
             rockContext.SaveChanges();
 
-            CacheWorkflowTriggers.Remove();
+            WorkflowTriggersCache.Remove();
 
             NavigateToParentPage();
         }

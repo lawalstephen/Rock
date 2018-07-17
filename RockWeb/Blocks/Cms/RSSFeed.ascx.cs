@@ -95,12 +95,12 @@ namespace RockWeb.Blocks.Cms
         private void ClearCache()
         {
             SyndicationFeedHelper.ClearCachedFeed( GetAttributeValue( "RSSFeedUrl" ) );
-            CacheLavaTemplate.Remove( TemplateCacheKey );
+            LavaTemplateCache.Remove( TemplateCacheKey );
         }
 
         private Template GetTemplate()
         {
-            var cacheTemplate = CacheLavaTemplate.Get( TemplateCacheKey, GetAttributeValue( "Template" ) );
+            var cacheTemplate = LavaTemplateCache.Get( TemplateCacheKey, GetAttributeValue( "Template" ) );
             return cacheTemplate != null ? cacheTemplate.Template : null;
         }
 

@@ -1106,7 +1106,7 @@ achieve our mission.  We are so grateful for your commitment.
                     rockContext.SaveChanges();
 
                     // Add a note about the change
-                    var noteType = CacheNoteType.Get( Rock.SystemGuid.NoteType.SCHEDULED_TRANSACTION_NOTE.AsGuid() );
+                    var noteType = NoteTypeCache.Get( Rock.SystemGuid.NoteType.SCHEDULED_TRANSACTION_NOTE.AsGuid() );
                     if ( noteType != null )
                     {
                         var noteService = new NoteService( rockContext );

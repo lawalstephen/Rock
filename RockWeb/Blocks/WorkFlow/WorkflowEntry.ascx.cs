@@ -51,7 +51,7 @@ namespace RockWeb.Blocks.WorkFlow
         private WorkflowService _workflowService = null;
 
         private WorkflowTypeCache _workflowType = null;
-        private CacheWorkflowActionType _actionType = null;
+        private WorkflowActionTypeCache _actionType = null;
         private Workflow _workflow = null;
         private WorkflowActivity _activity = null;
         private WorkflowAction _action = null;
@@ -247,7 +247,7 @@ namespace RockWeb.Blocks.WorkFlow
             if ( !Page.IsPostBack )
             {
                 var entityType = EntityTypeCache.Get( typeof( Rock.Model.Workflow ) );
-                var noteTypes = CacheNoteType.GetByEntity( entityType.Id, string.Empty, string.Empty );
+                var noteTypes = NoteTypeCache.GetByEntity( entityType.Id, string.Empty, string.Empty );
                 ncWorkflowNotes.NoteOptions.SetNoteTypes( noteTypes );
             }
 

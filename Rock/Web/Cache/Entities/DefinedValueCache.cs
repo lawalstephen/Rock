@@ -110,6 +110,17 @@ namespace Rock.Web.Cache
             return Value;
         }
 
+        /// <summary>
+        /// Reads the specified unique identifier.
+        /// </summary>
+        /// <param name="guid">The unique identifier.</param>
+        /// <returns></returns>
+        [Obsolete("Use Get Instead")]
+        public static DefinedValueCache Read( string guid )
+        {
+            return Get( guid.AsGuid() );
+        }
+
         #endregion
 
         #region Static Methods

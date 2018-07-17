@@ -30,7 +30,6 @@ using Rock.Web.UI.Controls;
 using Rock.Attribute;
 using Rock.Web.UI;
 using System.Data.Entity;
-using Rock.Web.Cache;
 
 namespace RockWeb.Blocks.Groups
 {

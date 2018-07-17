@@ -99,6 +99,23 @@ namespace Rock.Web.Cache
             return Name;
         }
 
+        /// <summary>
+        /// Reads the specified unique identifier.
+        /// </summary>
+        /// <param name="guid">The unique identifier.</param>
+        /// <returns></returns>
+        [Obsolete("Use Get Instead")]
+        public static InteractionComponentCache Read( string guid )
+        {
+            Guid realGuid = guid.AsGuid();
+            if ( realGuid.Equals( Guid.Empty ) )
+            {
+                return null;
+            }
+
+            return Get( realGuid );
+        }
+
         #endregion
 
     }

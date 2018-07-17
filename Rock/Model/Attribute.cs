@@ -345,7 +345,7 @@ namespace Rock.Model
             {
                 // ensure that the BinaryFile.IsTemporary flag is set to false for any BinaryFiles that are associated with this record
                 var fieldTypeCache = FieldTypeCache.Get( this.FieldTypeId );
-                if ( fieldTypeCache.Field is Rock.Field.Types.BinaryFileFieldType )
+                if ( fieldTypeCache?.Field is Rock.Field.Types.BinaryFileFieldType )
                 {
                     Guid? binaryFileGuid = DefaultValue.AsGuidOrNull();
                     if ( binaryFileGuid.HasValue )

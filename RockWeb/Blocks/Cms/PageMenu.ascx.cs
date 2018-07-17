@@ -85,7 +85,7 @@ namespace RockWeb.Blocks.Cms
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void PageMenu_BlockUpdated( object sender, EventArgs e )
         {
-            CacheLavaTemplate.Remove( CacheKey() );
+            LavaTemplateCache.Remove( CacheKey() );
         }
 
         private void Render()
@@ -181,7 +181,7 @@ namespace RockWeb.Blocks.Cms
 
         private Template GetTemplate()
         {
-            var cacheTemplate = CacheLavaTemplate.Get( CacheKey(), GetAttributeValue( "Template" ) );
+            var cacheTemplate = LavaTemplateCache.Get( CacheKey(), GetAttributeValue( "Template" ) );
             return cacheTemplate != null ? cacheTemplate.Template : null;
         }
 

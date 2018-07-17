@@ -136,7 +136,7 @@ namespace RockWeb.Blocks.Crm
             ScriptManager.RegisterStartupScript( ddlGradePicker, ddlGradePicker.GetType(), "grade-selection-" + BlockId.ToString(), ddlGradePicker.GetJavascriptForYearPicker( ypGraduation ), true );
 
             ddlNoteType.Items.Clear();
-            var noteTypes = CacheNoteType.GetByEntity( personEntityTypeId, string.Empty, string.Empty, true );
+            var noteTypes = NoteTypeCache.GetByEntity( personEntityTypeId, string.Empty, string.Empty, true );
             foreach ( var noteType in noteTypes )
             {
                 if ( noteType.UserSelectable && noteType.IsAuthorized( Rock.Security.Authorization.EDIT, CurrentPerson ) )
@@ -1126,7 +1126,7 @@ namespace RockWeb.Blocks.Crm
                 bool isAlert = cbIsAlert.Checked;
                 bool isPrivate = cbIsPrivate.Checked;
 
-                var noteType = CacheNoteType.Get( ddlNoteType.SelectedValueAsId() ?? 0 );
+                var noteType = NoteTypeCache.Get( ddlNoteType.SelectedValueAsId() ?? 0 );
                 if ( noteType != null )
                 {
                     var notes = new List<Note>();

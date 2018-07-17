@@ -649,6 +649,17 @@ namespace Rock.Web.Cache
             return Name;
         }
 
+        /// <summary>
+        /// Reads the specified unique identifier.
+        /// </summary>
+        /// <param name="guid">The unique identifier.</param>
+        /// <returns></returns>
+        [Obsolete("Use Get Instead")]
+        public static GroupTypeCache Read( string guid )
+        {
+            return Get( new Guid( guid ) );
+        }
+
         #endregion
 
         #region Static Methods

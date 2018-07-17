@@ -524,10 +524,10 @@ namespace RockWeb.Blocks.Fundraising
             BindContributionsGrid();
 
             // Tab:Comments
-            var noteType = CacheNoteType.Get( this.GetAttributeValue( "NoteType" ).AsGuid() );
+            var noteType = NoteTypeCache.Get( this.GetAttributeValue( "NoteType" ).AsGuid() );
             if ( noteType != null )
             {
-                notesCommentsTimeline.NoteOptions.SetNoteTypes( new List<CacheNoteType> { noteType } );
+                notesCommentsTimeline.NoteOptions.SetNoteTypes( new List<NoteTypeCache> { noteType } );
             }
 
             notesCommentsTimeline.NoteOptions.EntityId = groupMember.Id;

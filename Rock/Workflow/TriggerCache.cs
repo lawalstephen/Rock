@@ -26,7 +26,7 @@ namespace Rock.Workflow
     /// <summary>
     /// MEF Container class for WorkflowAction Componenets
     /// </summary>
-    [Obsolete( "Use CacheWorkflowTriggers instead" )]
+    [Obsolete( "Use WorkflowTriggersCache instead" )]
     public class TriggerCache
     {
 
@@ -46,7 +46,7 @@ namespace Rock.Workflow
         /// <summary>
         /// Refreshes this instance.
         /// </summary>
-        [Obsolete( "Use CacheWorkflowTriggers.Refresh() method instead" )]
+        [Obsolete( "Use WorkflowTriggersCache.Refresh() method instead" )]
         public static void Refresh()
         {
             WorkflowTriggersCache.Refresh();
@@ -57,7 +57,7 @@ namespace Rock.Workflow
         /// </summary>
         /// <param name="entityTypeName">Name of the entity type.</param>
         /// <returns></returns>
-        [Obsolete( "Use CacheWorkflowTriggers.Triggers() method instead" )]
+        [Obsolete( "Use WorkflowTriggersCache.Triggers() method instead" )]
         public static List<WorkflowTrigger> Triggers( string entityTypeName )
         {
             return WorkflowTriggersCache.Triggers( entityTypeName );
@@ -69,7 +69,7 @@ namespace Rock.Workflow
         /// <param name="entityTypeName">Name of the entity type.</param>
         /// <param name="triggerType">Type of the trigger.</param>
         /// <returns></returns>
-        [Obsolete( "Use CacheWorkflowTriggers.Triggers() method instead" )]
+        [Obsolete( "Use WorkflowTriggersCache.Triggers() method instead" )]
         public static List<WorkflowTrigger> Triggers( string entityTypeName, WorkflowTriggerType triggerType )
         {
             return WorkflowTriggersCache.Triggers( entityTypeName, triggerType );

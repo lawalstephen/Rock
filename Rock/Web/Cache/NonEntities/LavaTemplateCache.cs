@@ -63,6 +63,17 @@ namespace Rock.Web.Cache
         }
 
         /// <summary>
+        /// Reads the specified content.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <returns></returns>
+        [Obsolete("Use Get instead")]
+        public static LavaTemplateCache Read( string content )
+        {
+            return Get( content );
+        }
+
+        /// <summary>
         /// Returns LavaTemplate object from cache.  If template does not already exist in cache, it
         /// will be read and added to cache
         /// </summary>

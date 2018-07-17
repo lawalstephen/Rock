@@ -125,6 +125,18 @@ namespace Rock.Web.Cache
         #region Static Methods
 
         /// <summary>
+        /// Reads the specified API identifier.
+        /// </summary>
+        /// <param name="apiId">The API identifier.</param>
+        /// <param name="rockContext">The rock context.</param>
+        /// <returns></returns>
+        [Obsolete("Use Get Instead")]
+        public static RestActionCache Read( string apiId, RockContext rockContext = null )
+        {
+            return Get( apiId, rockContext );
+        }
+
+        /// <summary>
         /// Gets the specified API identifier.
         /// </summary>
         /// <param name="apiId">The API identifier.</param>

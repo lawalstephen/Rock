@@ -198,7 +198,7 @@ namespace RockWeb.Blocks.Core
             // see if the NoteType allows following
             if ( noteWatch.NoteTypeId.HasValue )
             {
-                var noteTypeCache = CacheNoteType.Get( noteWatch.NoteTypeId.Value );
+                var noteTypeCache = NoteTypeCache.Get( noteWatch.NoteTypeId.Value );
                 if ( noteTypeCache != null )
                 {
                     if ( noteTypeCache.AllowsWatching == false )
@@ -333,7 +333,7 @@ namespace RockWeb.Blocks.Core
             ddlNoteType.Items.Add( new ListItem() );
             if ( entityTypeId.HasValue )
             {
-                var entityNoteTypes = CacheNoteType.GetByEntity( entityTypeId.Value, null, null, true );
+                var entityNoteTypes = NoteTypeCache.GetByEntity( entityTypeId.Value, null, null, true );
                 ddlNoteType.Items.AddRange( entityNoteTypes.Select( a => new ListItem( a.Name, a.Id.ToString() ) ).ToArray() );
             }
 
