@@ -808,7 +808,6 @@
     <Compile Include="Jobs\MigrateAttendanceOccurrenceData.cs" />
     <Compile Include="Jobs\MigrateHistorySummaryData.cs" />
     <Compile Include="Jobs\PostV80DataMigrations.cs" />
-    <Compile Include="Jobs\ProcessNcoaResults.cs" />
     <Compile Include="Jobs\PostV74DataMigrations.cs" />
     <Compile Include="Jobs\MigrateCommunicationMediumData.cs" />
     <Compile Include="Jobs\MigrateInteractionsData.cs" />
@@ -1260,6 +1259,7 @@
     <Compile Include="Model\MetricValue.cs" />
     <Compile Include="Model\MetricValuePartition.cs" />
     <Compile Include="Model\NcoaHistory.cs" />
+    <Compile Include="Model\NcoaHistoryService.Partial.cs" />
     <Compile Include="Model\Note.cs" />
     <Compile Include="Model\NoteService.Partial.cs" />
     <Compile Include="Model\NoteType.cs" />

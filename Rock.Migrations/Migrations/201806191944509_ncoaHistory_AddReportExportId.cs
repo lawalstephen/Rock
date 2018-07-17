@@ -30,6 +30,8 @@ namespace Rock.Migrations
         {
             AddColumn( "dbo.NcoaHistory", "ReportExportId", c => c.String() );
 
+            #region Job
+
             #region Add GetNcoa Job
 
             Sql( $@"IF NOT EXISTS(SELECT [Id] FROM [ServiceJob] WHERE [Class] = 'Rock.Jobs.GetNcoa')
@@ -57,6 +59,11 @@ END" );
 
             #endregion
 
+            // Delete ProcessNcoaResults job
+            Sql( "DELETE FROM [dbo].[ServiceJob] WHERE Class = 'Rock.Jobs.ProcessNcoaResults'" );
+
+            #endregion
+                        
             #region Page and block
 
             // Add the new page
@@ -64,6 +71,11 @@ END" );
             RockMigrationHelper.UpdateBlockType( "Spark Data Settings", "Block used to set values specific to Spark Data (NCOA, Etc).", "~/Blocks/Administration/SparkDataSettings.ascx", "Administration", "6B6A429D-E42C-70B5-4A04-98E886C45E7A" );
             RockMigrationHelper.AddBlock( true, "0591e498-0ad6-45a5-b8ca-9bca5c771f03", "", "6B6A429D-E42C-70B5-4A04-98E886C45E7A", "Spark Data Settings", "Main", @"", @"", 0, "E7BA08B2-F8CC-2FA8-4677-EA3E776F4EEB" );
 
+            // Remove Ncoa History Detail BlockType: ~/Blocks/Crm/NcoaHistoryDetail.ascx
+            RockMigrationHelper.DeleteBlockType( "972b7955-ecf9-43b9-80b2-bff40675ffb8" );
+
+            // Data Automation Settings: Remove 'NCOA' from description
+            RockMigrationHelper.UpdateBlockType( "Data Automation Settings", "Block used to set values specific to data automation (Updating Person Status, Family Campus, Etc).", "~/Blocks/Administration/DataAutomationSettings.ascx", "Administration", "E34C45E9-97CA-4902-803B-1EFAC9174083" );
             #endregion
 
             #region System e-mail
@@ -81,7 +93,6 @@ END" );
 {{ 'Global' | Attribute:'EmailFooter' }}", SystemGuid.SystemEmail.SPARK_DATA_NOTIFICATION );
 
             #endregion
-
         }
 
         /// <summary>
