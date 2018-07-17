@@ -250,6 +250,11 @@ namespace RockWeb.Blocks.Administration
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void btnStartNcoa_Click( object sender, EventArgs e )
         {
+            mdRunNcoa.Show();
+        }
+
+        protected void mdRunNcoa_SaveClick( object sender, EventArgs e)
+        {
             Ncoa ncoa = new Ncoa();
             var sparkDataConfig = Ncoa.GetSettings();
             sparkDataConfig.NcoaSettings.PersonFullName = CurrentPerson != null ? CurrentPerson.FullName : null;
@@ -269,6 +274,8 @@ namespace RockWeb.Blocks.Administration
                     lbStartNcoa.Enabled = false;
                 }
             }
+
+            mdRunNcoa.Hide();
         }
 
         /// <summary>
