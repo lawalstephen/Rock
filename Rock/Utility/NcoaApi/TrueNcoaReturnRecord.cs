@@ -897,7 +897,7 @@ namespace Rock.Utility.NcoaApi
             {
                 ncoaHistory.NcoaType = NcoaType.Month48Move;
             }
-            else if ( MatchFlag.IsNotNullOrWhitespace() )
+            else if ( MatchFlag.IsNotNullOrWhiteSpace() )
             {
                 ncoaHistory.NcoaType = NcoaType.Move;
             }

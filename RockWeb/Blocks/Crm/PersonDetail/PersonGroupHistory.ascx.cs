@@ -180,17 +180,17 @@ namespace RockWeb.Blocks.Crm.PersonDetail
         /// <param name="e">The <see cref="System.Web.UI.WebControls.RepeaterItemEventArgs"/> instance containing the event data.</param>
         protected void rptGroupTypeLegend_ItemDataBound( object sender, System.Web.UI.WebControls.RepeaterItemEventArgs e )
         {
-            GroupTypeCache cacheGroupType = e.Item.DataItem as GroupTypeCache;
+            GroupTypeCache GroupTypeCache = e.Item.DataItem as GroupTypeCache;
             Literal lGroupTypeBadgeHtml = e.Item.FindControl( "lGroupTypeBadgeHtml" ) as Literal;
-            if ( cacheGroupType != null )
+            if ( GroupTypeCache != null )
             {
                 var style = string.Empty;
-                if (!string.IsNullOrEmpty(cacheGroupType.GroupTypeColor))
+                if (!string.IsNullOrEmpty(GroupTypeCache.GroupTypeColor))
                 {
-                    style = "background-color:" + cacheGroupType.GroupTypeColor;
+                    style = "background-color:" + GroupTypeCache.GroupTypeColor;
                 }
 
-                lGroupTypeBadgeHtml.Text = string.Format( "<span class='label label-default' style='{0}'>{1}</span>", style, cacheGroupType.Name );
+                lGroupTypeBadgeHtml.Text = string.Format( "<span class='label label-default' style='{0}'>{1}</span>", style, GroupTypeCache.Name );
             }
         }
     }

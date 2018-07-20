@@ -132,7 +132,7 @@ namespace Rock.Utility.SparkDataApi
             try
             {
                 string url;
-                if ( personFullName.IsNotNullOrWhitespace() )
+                if ( personFullName.IsNotNullOrWhiteSpace() )
                 {
                     url = $"api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords ?? 0}/{personFullName}";
                 }

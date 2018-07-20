@@ -18,7 +18,7 @@ using System.ComponentModel;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Rock;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Data;
 using Rock.Model;
 using Rock.SystemKey;
@@ -59,9 +59,9 @@ namespace RockWeb.Blocks.Administration
             // this event gets fired after block settings are updated. it's nice to repaint the screen if these settings would alter it
             this.BlockUpdated += Block_BlockUpdated;
             this.AddConfigurationUpdateTrigger( upnlContent );
-            dvpNcoaPersonDataView.EntityTypeId = CacheEntityType.GetId<Rock.Model.Person>();
+            dvpNcoaPersonDataView.EntityTypeId = EntityTypeCache.GetId<Rock.Model.Person>();
 
-            var inactiveRecordReasonDt = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.PERSON_RECORD_STATUS_REASON.AsGuid() );
+            var inactiveRecordReasonDt = DefinedTypeCache.Get( Rock.SystemGuid.DefinedType.PERSON_RECORD_STATUS_REASON.AsGuid() );
             dvpNcoaInactiveRecordReason.BindToDefinedType( inactiveRecordReasonDt, true );
         }
 
@@ -409,7 +409,7 @@ namespace RockWeb.Blocks.Administration
                 pwNcoaConfiguration.Visible = true;
                 bbtnNcoaSaveConfig.Visible = true;
 
-                // Get Ncoa configuration settings
+                // Get NCOA configuration settings
                 nbNcoaMinMoveDistance.Text = Rock.Web.SystemSettings.GetValue( SystemSetting.NCOA_MINIMUM_MOVE_DISTANCE_TO_INACTIVATE );
                 cbNcoa48MonAsPrevious.Checked = Rock.Web.SystemSettings.GetValue( SystemSetting.NCOA_SET_48_MONTH_AS_PREVIOUS ).AsBoolean();
                 cbNcoaInvalidAddressAsPrevious.Checked = Rock.Web.SystemSettings.GetValue( SystemSetting.NCOA_SET_INVALID_AS_PREVIOUS ).AsBoolean();
@@ -423,7 +423,7 @@ namespace RockWeb.Blocks.Administration
                     _sparkDataConfig.NcoaSettings = new NcoaSettings();
                 }
 
-                dvpNcoaPersonDataView.SelectedValue = _sparkDataConfig.NcoaSettings.PersonDataViewId.ToStringSafe();
+                dvpNcoaPersonDataView.SetValue( _sparkDataConfig.NcoaSettings.PersonDataViewId );
                 cbNcoaRecurringEnabled.Checked = _sparkDataConfig.NcoaSettings.RecurringEnabled;
                 nbNcoaRecurrenceInterval.Enabled = _sparkDataConfig.NcoaSettings.RecurringEnabled;
                 nbNcoaRecurrenceInterval.Text = _sparkDataConfig.NcoaSettings.RecurrenceInterval.ToStringSafe();
@@ -512,7 +512,7 @@ namespace RockWeb.Blocks.Administration
         /// </summary>
         private void SaveSettings()
         {
-            // Ncoa Configuration
+            // NCOA Configuration
             Rock.Web.SystemSettings.SetValue( SystemSetting.NCOA_MINIMUM_MOVE_DISTANCE_TO_INACTIVATE, nbNcoaMinMoveDistance.Text );
             Rock.Web.SystemSettings.SetValue( SystemSetting.NCOA_SET_48_MONTH_AS_PREVIOUS, cbNcoa48MonAsPrevious.Checked.ToString() );
             Rock.Web.SystemSettings.SetValue( SystemSetting.NCOA_SET_INVALID_AS_PREVIOUS, cbNcoaInvalidAddressAsPrevious.Checked.ToString() );
