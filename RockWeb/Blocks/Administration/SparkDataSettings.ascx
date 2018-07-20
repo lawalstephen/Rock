@@ -113,7 +113,7 @@
                                 of the Services you consent to the collection and use of this information, including the storage, processing and use by TrueNCOA and its affiliates. Customer
                                 information will only be shared by TrueNCOA to provide or improve our products, services and advertising; it will not be shared with third parties for their
                                 marketing purposes. Read TrueNCOA’s full Terms of Service here, and read TrueNCOA’s Privacy Policy here." />
-                            <asp:CheckBox ID="cbNcoaAckPrice" runat="server" AutoPostBack="true" OnCheckedChanged="cbNcoaAckPrice_CheckedChanged" Text="I ackowledge that running this service will charge the card on file &#36;xx for each file run." />
+                            <asp:CheckBox ID="cbNcoaAckPrice" runat="server" AutoPostBack="true" OnCheckedChanged="cbNcoaAckPrice_CheckedChanged" Text="I acknowledge that running this service will charge the card on file &#36;xx for each file run." />
                             <br />
                             <div class="row">
                                 <div class="col-md-4">
