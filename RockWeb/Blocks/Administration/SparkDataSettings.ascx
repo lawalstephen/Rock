@@ -117,7 +117,7 @@
                             <br />
                             <div class="row">
                                 <div class="col-md-4">
-                                    <Rock:DataViewItemPicker ID="dvpNcoaPersonDataView" runat="server" Label="Person Data View" Required="true" ValidationGroup="NcoaValidationGroup" Help="Person data view filter to apply." OnSelectedIndexChanged="dvpNcoaPersonDataView_SelectedIndexChanged" AutoPostBack="true" />
+                                    <Rock:DataViewItemPicker ID="dvpNcoaPersonDataView" runat="server" Label="Person Data View" Required="true" ValidationGroup="NcoaValidationGroup" Help="Person data view filter to apply." OnSelectItem="dvpNcoaPersonDataView_SelectItem" AutoPostBack="true" />
                                 </div>
                             </div>
 

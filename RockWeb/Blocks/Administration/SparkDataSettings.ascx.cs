@@ -329,11 +329,11 @@ namespace RockWeb.Blocks.Administration
         }
 
         /// <summary>
-        /// Handles the SelectedIndexChanged event of the dvpNcoaPersonDataView control.
+        /// Handles the SelectItem event of the dvpNcoaPersonDataView control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void dvpNcoaPersonDataView_SelectedIndexChanged( object sender, EventArgs e )
+        protected void dvpNcoaPersonDataView_SelectItem( object sender, EventArgs e )
         {
             SetNcoaEditNotSaved();
         }
