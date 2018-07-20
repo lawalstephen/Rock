@@ -18,7 +18,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 using System.Runtime.Serialization;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Data;
 
 namespace Rock.Model
@@ -85,6 +85,22 @@ namespace Rock.Model
         [DataMember]
         public string Description { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this DefinedValue is active.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is active; otherwise, <c>false</c>.
+        /// </value>
+        [DataMember( IsRequired = true )]
+        [Required]
+        public bool IsActive
+        {
+            get { return _isActive; }
+            set { _isActive = value; }
+        }
+
+        private bool _isActive = true;
+
         #endregion
 
         #region Virtual Properties
@@ -132,13 +148,12 @@ namespace Rock.Model
         #region ICacheable
 
         /// <summary>
-        /// Updates the cached attribute value of the cache object associated with this entity
+        /// Gets the cache object associated with this Entity
         /// </summary>
-        /// <param name="attributeKey">The attribute key.</param>
-        /// <param name="value">The value.</param>
-        public void UpdateCachedAttributeValue( string attributeKey, string value )
+        /// <returns></returns>
+        public IEntityCache GetCacheObject()
         {
-            CacheDefinedValue.Get( this.Id )?.SetAttributeValue( attributeKey, value );
+            return DefinedValueCache.Get( this.Id );
         }
 
         /// <summary>
@@ -148,8 +163,8 @@ namespace Rock.Model
         /// <param name="dbContext">The database context.</param>
         public void UpdateCache( System.Data.Entity.EntityState entityState, Rock.Data.DbContext dbContext )
         {
-            CacheDefinedValue.UpdateCachedEntity( this.Id, entityState, dbContext as RockContext );
-            CacheDefinedType.UpdateCachedEntity( this.DefinedTypeId, System.Data.Entity.EntityState.Detached, dbContext as RockContext );
+            DefinedValueCache.UpdateCachedEntity( this.Id, entityState );
+            DefinedTypeCache.Get( this.DefinedTypeId, (RockContext)dbContext )?.ReloadDefinedValues();
         }
 
         #endregion

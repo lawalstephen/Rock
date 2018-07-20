@@ -31,7 +31,7 @@ using Rock.Field.Types;
 using Rock.Lava;
 using Rock.Model;
 using Rock.Security;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
 
@@ -194,10 +194,8 @@ namespace RockWeb.Blocks.Crm
                                     switch ( nameValue[0] )
                                     {
                                         case "re-order-form":
-                                            {
-                                                SortForms( guid, newIndex + 1 );
-                                                break;
-                                            }
+                                            SortForms( guid, newIndex );
+                                            break;
                                     }
                                 }
                             }
@@ -302,7 +300,7 @@ namespace RockWeb.Blocks.Crm
 
                             foreach ( var keyVal in AttributeValueState )
                             {
-                                var attribute = CacheAttribute.Get( keyVal.Key );
+                                var attribute = AttributeCache.Get( keyVal.Key );
                                 if ( attribute != null && ( CurrentPageIndex >= FormState.Count || !pageAttributeIds.Any() || pageAttributeIds.Contains( attribute.Id ) ) )
                                 {
                                     person.SetAttributeValue( attribute.Key, keyVal.Value );
@@ -316,7 +314,7 @@ namespace RockWeb.Blocks.Crm
                                 Guid? workflowTypeGuid = GetAttributeValue( "Workflow" ).AsGuidOrNull();
                                 if ( workflowTypeGuid.HasValue )
                                 {
-                                    var workflowType = CacheWorkflowType.Get( workflowTypeGuid.Value );
+                                    var workflowType = WorkflowTypeCache.Get( workflowTypeGuid.Value );
                                     if ( workflowType != null && ( workflowType.IsActive ?? true ) )
                                     {
                                         try
@@ -628,7 +626,7 @@ namespace RockWeb.Blocks.Crm
                                 a.AttributeId.HasValue &&
                                 a.ShowCurrentValue == true ) )
                         {
-                            var attributeCache = CacheAttribute.Get( field.AttributeId.Value );
+                            var attributeCache = AttributeCache.Get( field.AttributeId.Value );
                             if ( attributeCache != null )
                             {
                                 AttributeValueState.AddOrReplace( field.AttributeId.Value, CurrentPerson.GetAttributeValue( attributeCache.Key ) );
@@ -700,7 +698,7 @@ namespace RockWeb.Blocks.Crm
                         {
                             value = AttributeValueState[field.AttributeId.Value];
                         }
-                        var attribute = CacheAttribute.Get( field.AttributeId.Value );
+                        var attribute = AttributeCache.Get( field.AttributeId.Value );
                         attribute.AddControl( phContent.Controls, value, BlockValidationGroup, setValues, true, field.IsRequired, null, string.Empty );
 
                         if ( !string.IsNullOrWhiteSpace( field.PostText ) )
@@ -721,7 +719,7 @@ namespace RockWeb.Blocks.Crm
                     .Where( f => f.AttributeId.HasValue )
                     .OrderBy( f => f.Order ) )
                 {
-                    var attribute = CacheAttribute.Get( field.AttributeId.Value );
+                    var attribute = AttributeCache.Get( field.AttributeId.Value );
                     string fieldId = "attribute_field_" + attribute.Id.ToString();
 
                     Control control = phContent.FindControl( fieldId );
@@ -1112,6 +1110,7 @@ namespace RockWeb.Blocks.Crm
             {
                 return ViewState["ValidationGroup"] as string;
             }
+
             set
             {
                 ViewState["ValidationGroup"] = value;
@@ -1220,6 +1219,7 @@ $('.template-form > .panel-body').on('validation-error', function() {
 
     return false;
 });
+
 ";
 
             ScriptManager.RegisterStartupScript( this, this.GetType(), "PersonAttributeFormEditorScript", script, true );
@@ -1395,8 +1395,7 @@ $('.template-form > .panel-body').on('validation-error', function() {
             writer.RenderBeginTag( HtmlTextWriterTag.Div );
 
             writer.WriteLine( "<a class='btn btn-xs btn-link form-reorder'><i class='fa fa-bars'></i></a>" );
-            writer.WriteLine( string.Format( "<a class='btn btn-xs btn-link'><i class='form-state fa {0}'></i></a>",
-                Expanded ? "fa fa-chevron-up" : "fa fa-chevron-down" ) );
+            writer.WriteLine( string.Format( "<a class='btn btn-xs btn-link'><i class='form-state fa {0}'></i></a>", Expanded ? "fa fa-chevron-up" : "fa fa-chevron-down" ) );
 
             _lbDeleteForm.RenderControl( writer );
 
@@ -1411,6 +1410,7 @@ $('.template-form > .panel-body').on('validation-error', function() {
                 // hide details if the activity and actions are valid
                 writer.AddStyleAttribute( "display", "none" );
             }
+
             writer.AddAttribute( HtmlTextWriterAttribute.Class, "panel-body" );
             writer.RenderBeginTag( HtmlTextWriterTag.Div );
 
@@ -1527,7 +1527,6 @@ $('.template-form > .panel-body').on('validation-error', function() {
             }
         }
 
-
         /// <summary>
         /// Occurs when [delete activity type click].
         /// </summary>
@@ -1557,7 +1556,6 @@ $('.template-form > .panel-body').on('validation-error', function() {
         /// Occurs when [delete field click].
         /// </summary>
         public event EventHandler<AttributeFormFieldEventArg> DeleteFieldClick;
-
     }
 
     /// <summary>
@@ -1658,21 +1656,27 @@ $('.template-form > .panel-body').on('validation-error', function() {
     public partial class AttributeFormField : IOrdered
     {
         public Guid Guid { get; set; }
+
         public int? AttributeId { get; set; }
+
         public bool ShowCurrentValue { get; set; }
+
         public bool IsRequired { get; set; }
+
         public int Order { get; set; }
+
         public string PreText { get; set; }
+
         public string PostText { get; set; }
 
         [Newtonsoft.Json.JsonIgnore]
-        public CacheAttribute Attribute
+        public AttributeCache Attribute
         {
             get
             {
                 if ( AttributeId.HasValue )
                 {
-                    return CacheAttribute.Get( AttributeId.Value );
+                    return AttributeCache.Get( AttributeId.Value );
                 }
 
                 return null;

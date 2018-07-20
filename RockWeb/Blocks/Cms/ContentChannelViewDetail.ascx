@@ -12,8 +12,7 @@
         <%-- View Panel --%>
         <asp:Panel ID="pnlView" runat="server">
             <Rock:NotificationBox ID="nbAlert" runat="server" NotificationBoxType="Danger" />
-            <asp:PlaceHolder ID="phContent" runat="server" />
-            <asp:Literal ID="lDebug" runat="server" />
+            <asp:Literal ID="lContentOutput" runat="server" />
         </asp:Panel>
 
         <%-- Custom Block Settings --%>
@@ -34,15 +33,14 @@
                             <div class="col-md-6">
                                 <fieldset>
                                     <legend>Interactions</legend>
-                                    <Rock:RockCheckBox ID="cbLogInteractions" runat="server" Label="Log Item Interaction" Help="Create an interaction for the current content channel item" />
+                                    <Rock:RockCheckBox ID="cbLogInteractions" runat="server" Label="Log Item Interaction" Help="Create an interaction for the current content channel item" OnCheckedChanged="cbLogInteractions_CheckedChanged" AutoPostBack="true" />
                                     <Rock:RockCheckBox ID="cbWriteInteractionOnlyIfIndividualLoggedIn" runat="server" Label="Write Interaction Only If Individual Logged In" Help="Set to true to only launch a workflow for logged in users, or set to false to launch for both logged in and anonymous users." />
                                 </fieldset>
                             </div>
                             <div class="col-md-6">
                                 <fieldset>
                                     <legend>Workflows</legend>
-
-                                    <Rock:WorkflowTypePicker ID="wtpWorkflowType" runat="server" Label="Workflow Type" Help="The workflow type to launch when the content is viewed." />
+                                    <Rock:WorkflowTypePicker ID="wtpWorkflowType" runat="server" Label="Workflow Type" Help="The workflow type to launch when the content is viewed." OnSelectItem="wtpWorkflowType_SelectItem" />
                                     <Rock:RockCheckBox ID="cbLaunchWorkflowOnlyIfIndividualLoggedIn" runat="server" Label="Launch Workflow Only If Individual Logged In" Help="Set to true to only launch a workflow for logged in users, or set to false to launch for both logged in and anonymous users." />
                                     <Rock:RockDropDownList ID="ddlLaunchWorkflowCondition" runat="server" Label="Launch Workflow" />
                                 </fieldset>
@@ -94,6 +92,8 @@ Integer - ContentChannelItem Id
 String - ContentChannelItem Slug
 Guid - ContentChannelItem Guid" />
                         <Rock:NumberBox ID="nbOutputCacheDuration" runat="server" Label="Output Cache Duration" MinimumValue="0" CssClass="input-width-sm" Help="Number of seconds to cache the resolved output. Only cache the output if you are not personalizing the output based on current user, current page, or any other merge field value." />
+                        <Rock:NumberBox ID="nbItemCacheDuration" runat="server" Label="Item Cache Duration" MinimumValue="0" CssClass="input-width-sm" Help="Number of seconds to cache the content item specified by the parameter." />
+                        <Rock:RockCheckBoxList ID="cblCacheTags" runat="server" Label="Cache Tags" Help="Cached tags are used to link cached content so that it can be expired as a group" RepeatDirection="Horizontal" />
                         <Rock:RockCheckBox ID="cbSetPageTitle" runat="server" Label="Set Page Title" Help="Determines if the block should set the page title with the channel name or content item." />
                     </Rock:PanelWidget>
                 </Content>

@@ -24,7 +24,7 @@ using System.Data.Entity.ModelConfiguration;
 using System.Runtime.Serialization;
 
 using Newtonsoft.Json;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Data;
 using Rock.Security;
 
@@ -358,13 +358,12 @@ namespace Rock.Model
         }
 
         /// <summary>
-        /// Updates the cached attribute value of the cache object associated with this entity
+        /// Gets the cache object associated with this Entity
         /// </summary>
-        /// <param name="attributeKey">The attribute key.</param>
-        /// <param name="value">The value.</param>
-        public void UpdateCachedAttributeValue( string attributeKey, string value )
+        /// <returns></returns>
+        public IEntityCache GetCacheObject()
         {
-            CacheBlock.Get( this.Id )?.SetAttributeValue( attributeKey, value );
+            return BlockCache.Get( this.Id );
         }
 
         /// <summary>
@@ -374,30 +373,30 @@ namespace Rock.Model
         /// <param name="dbContext">The database context.</param>
         public void UpdateCache( System.Data.Entity.EntityState entityState, Rock.Data.DbContext dbContext )
         {
-            CacheBlock.UpdateCachedEntity( this.Id, entityState, dbContext as RockContext );
+            BlockCache.UpdateCachedEntity( this.Id, entityState );
 
             var model = this;
 
             if ( model.SiteId.HasValue && model.SiteId != originalSiteId )
             {
-                Rock.Cache.CachePage.RemoveSiteBlocks( model.SiteId.Value );
+                PageCache.RemoveSiteBlocks( model.SiteId.Value );
             }
             else if ( model.LayoutId.HasValue && model.LayoutId != originalLayoutId )
             {
-                Rock.Cache.CachePage.RemoveLayoutBlocks( model.LayoutId.Value );
+                PageCache.RemoveLayoutBlocks( model.LayoutId.Value );
             }
 
             if ( originalSiteId.HasValue )
             {
-                Rock.Cache.CachePage.RemoveSiteBlocks( originalSiteId.Value );
+                PageCache.RemoveSiteBlocks( originalSiteId.Value );
             }
             else if ( originalLayoutId.HasValue )
             {
-                Rock.Cache.CachePage.RemoveLayoutBlocks( originalLayoutId.Value );
+                PageCache.RemoveLayoutBlocks( originalLayoutId.Value );
             }
             else if ( originalPageId.HasValue )
             {
-                var page = Rock.Cache.CachePage.Get( originalPageId.Value );
+                var page = PageCache.Get( originalPageId.Value );
                 page.RemoveBlocks();
             }
         }

@@ -20,7 +20,7 @@ using System.Linq;
 using Rock;
 using Rock.Data;
 using Rock.Model;
-using Rock.Cache;
+using Rock.Web.Cache;
 using System.Web;
 using Rock.Web.UI;
 
@@ -31,7 +31,7 @@ namespace Rock.Transactions
     /// </summary>
     public class InteractionTransaction : ITransaction
     {
-        private CacheDefinedValue _channelMediumTypeValue;
+        private DefinedValueCache _channelMediumTypeValue;
         private int _channelEntityId;
         private string _channelName;
         private int _componentEntityTypeId;
@@ -71,7 +71,7 @@ namespace Rock.Transactions
         /// <param name="channelMediumTypeValue">The channel medium type value.</param>
         /// <param name="channelEntity">The channel entity.</param>
         /// <param name="componentEntity">The component entity.</param>
-        public InteractionTransaction( CacheDefinedValue channelMediumTypeValue, IEntity channelEntity, IEntity componentEntity )
+        public InteractionTransaction( DefinedValueCache channelMediumTypeValue, IEntity channelEntity, IEntity componentEntity )
         {
             if ( channelEntity == null || componentEntity == null )
             {
@@ -94,7 +94,7 @@ namespace Rock.Transactions
         /// <param name="channelMediumTypeValue">The channel medium type value.</param>
         /// <param name="channelEntity">The channel entity.</param>
         /// <param name="componentEntity">The component entity.</param>
-        public InteractionTransaction( CacheDefinedValue channelMediumTypeValue, IEntityCache channelEntity, IEntityCache componentEntity )
+        public InteractionTransaction( DefinedValueCache channelMediumTypeValue, IEntityCache channelEntity, IEntityCache componentEntity )
         {
             if ( channelEntity == null || componentEntity == null )
             {
@@ -117,17 +117,56 @@ namespace Rock.Transactions
         /// </summary>
         private void Initialize()
         {
-            var rockPage = HttpContext.Current.Handler as RockPage;
-            var request = HttpContext.Current.Request;
+            RockPage rockPage;
 
-            _browserSessionId = rockPage.Session["RockSessionID"].ToString().AsGuidOrNull();
+            try
+            {
+                rockPage = HttpContext.Current.Handler as RockPage;
+            }
+            catch
+            {
+                rockPage = null;
+            }
+
+            HttpRequest request = null;
+            try
+            {
+                if ( rockPage != null )
+                {
+                    request = rockPage.Request;
+                }
+                else if ( HttpContext.Current != null )
+                {
+                    request = HttpContext.Current.Request;
+                }
+            }
+            catch
+            {
+                // intentionally ignore exception (.Request will throw an exception instead of simply returning null if it isn't available)
+            }
+
+            if ( rockPage == null || request == null )
+            {
+                _logInteraction = false;
+                return;
+            }
+
+            _browserSessionId = rockPage.Session["RockSessionID"]?.ToString().AsGuidOrNull();
             _userAgent = request.UserAgent;
             _url = request.Url.ToString();
-            _ipAddress = RockPage.GetClientIpAddress();
+            try
+            {
+                _ipAddress = RockPage.GetClientIpAddress();
+            }
+            catch
+            {
+                _ipAddress = "";
+            }
+
             _currentPersonAliasId = rockPage.CurrentPersonAliasId;
 
             var title = string.Empty;
-            if ( rockPage.BrowserTitle.IsNotNullOrWhitespace() )
+            if ( rockPage.BrowserTitle.IsNotNullOrWhiteSpace() )
             {
                 title = rockPage.BrowserTitle;
             }
@@ -137,7 +176,7 @@ namespace Rock.Transactions
             }
 
             // remove site name from browser title
-            if ( title.Contains( "|" ) )
+            if ( title?.Contains( "|" ) == true)
             {
                 title = title.Substring( 0, title.LastIndexOf( '|' ) ).Trim();
             }

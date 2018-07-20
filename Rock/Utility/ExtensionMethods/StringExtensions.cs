@@ -1,4 +1,4 @@
-// <copyright>
+﻿// <copyright>
 // Copyright by the Spark Development Network
 //
 // Licensed under the Rock Community License (the "License");
@@ -88,6 +88,20 @@ namespace Rock
         /// </summary>
         /// <param name="str">The string.</param>
         /// <returns></returns>
+        [System.Diagnostics.DebuggerStepThrough()]
+        public static bool IsNotNullOrWhiteSpace( this string str )
+        {
+            return !string.IsNullOrWhiteSpace( str );
+        }
+
+        /// <summary>
+        /// Determines whether [is not null or whitespace].
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <returns>
+        ///   <c>true</c> if [is not null or whitespace] [the specified string]; otherwise, <c>false</c>.
+        /// </returns>
+        [Obsolete( "Use IsNotNullOrWhiteSpace instead. Fixes non-standard casing.", false )]
         public static bool IsNotNullOrWhitespace( this string str )
         {
             return !string.IsNullOrWhiteSpace( str );
@@ -98,6 +112,7 @@ namespace Rock
         /// </summary>
         /// <param name="str">The string.</param>
         /// <returns></returns>
+        [System.Diagnostics.DebuggerStepThrough()]
         public static bool IsNullOrWhiteSpace( this string str )
         {
             return string.IsNullOrWhiteSpace( str );
@@ -338,11 +353,11 @@ namespace Rock
         /// Adds Quotes around the specified string and escapes any quotes that are already in the string.
         /// </summary>
         /// <param name="str">The string.</param>
-        /// <param name="QuoteChar">The quote character.</param>
+        /// <param name="quoteChar">The quote character.</param>
         /// <returns></returns>
-        public static string Quoted( this string str, string QuoteChar = "'" )
+        public static string Quoted( this string str, string quoteChar = "'" )
         {
-            var result = QuoteChar + str.EscapeQuotes() + QuoteChar;
+            var result = quoteChar + str.EscapeQuotes() + quoteChar;
             return result;
         }
 
@@ -400,7 +415,7 @@ namespace Rock
         /// <returns></returns>
         public static string TrimForMaxLength( this string str, Data.IEntity entity, string propertyName )
         {
-            if ( str.IsNotNullOrWhitespace() )
+            if ( str.IsNotNullOrWhiteSpace() )
             {
                 var maxLengthAttr = entity.GetAttributeFrom<System.ComponentModel.DataAnnotations.MaxLengthAttribute>( propertyName );
                 if ( maxLengthAttr != null )
@@ -424,14 +439,14 @@ namespace Rock
         /// <summary>
         /// Replaces the last occurrence of a given string with a new value
         /// </summary>
-        /// <param name="Source">The string.</param>
-        /// <param name="Find">The search parameter.</param>
-        /// <param name="Replace">The replacement parameter.</param>
+        /// <param name="source">The string.</param>
+        /// <param name="find">The search parameter.</param>
+        /// <param name="replace">The replacement parameter.</param>
         /// <returns></returns>
-        public static string ReplaceLastOccurrence( this string Source, string Find, string Replace )
+        public static string ReplaceLastOccurrence( this string source, string find, string replace )
         {
-            int Place = Source.LastIndexOf( Find );
-            return Place > 0 ? Source.Remove( Place, Find.Length ).Insert( Place, Replace ) : Source;
+            int Place = source.LastIndexOf( find );
+            return Place > 0 ? source.Remove( Place, find.Length ).Insert( Place, replace ) : source;
         }
 
         /// <summary>

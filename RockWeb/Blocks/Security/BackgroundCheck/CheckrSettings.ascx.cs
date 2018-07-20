@@ -20,7 +20,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Web.UI;
 using Rock;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Checkr.Constants;
 using Rock.Data;
 using Rock.Migrations;
@@ -74,7 +74,6 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         {
             nbNotification.Visible = false;
             pnlToken.Visible = true;
-            imgCheckrImage.Visible = false;
             pnlPackages.Visible = false;
             HideSecondaryBlocks( true );
         }
@@ -138,7 +137,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void btnDefault_Click( object sender, EventArgs e )
         {
-            var bioBlock = CacheBlock.Get( Rock.SystemGuid.Block.BIO.AsGuid() );
+            var bioBlock = BlockCache.Get( Rock.SystemGuid.Block.BIO.AsGuid() );
             List<Guid> workflowActionGuidList = bioBlock.GetAttributeValues( "WorkflowActions" ).AsGuidList();
             if ( workflowActionGuidList == null || workflowActionGuidList.Count == 0 )
             {
@@ -239,7 +238,6 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         /// </summary>
         private void ShowDetail()
         {
-            imgCheckrImage.ImageUrl = CheckrConstants.CHECKR_IMAGE_URL;
             string accessToken = null;
             using ( RockContext rockContext = new RockContext() )
             {
@@ -254,7 +252,6 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             if ( accessToken.IsNullOrWhiteSpace() )
             {
                 pnlToken.Visible = true;
-                imgCheckrImage.Visible = true;
                 pnlPackages.Visible = false;
                 HideSecondaryBlocks( true );
             }
@@ -284,7 +281,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
         /// <returns></returns>
         private List<AttributeValue> GetSettings( RockContext rockContext )
         {
-            var checkrEntityType = CacheEntityType.Get( typeof( Rock.Checkr.Checkr ) );
+            var checkrEntityType = EntityTypeCache.Get( typeof( Rock.Checkr.Checkr ) );
             if ( checkrEntityType != null )
             {
                 var service = new AttributeValueService( rockContext );
@@ -341,7 +338,7 @@ namespace RockWeb.Blocks.Security.BackgroundCheck
             }
             else
             {
-                var checkrEntityType = CacheEntityType.Get( typeof( Rock.Checkr.Checkr ) );
+                var checkrEntityType = EntityTypeCache.Get( typeof( Rock.Checkr.Checkr ) );
                 if ( checkrEntityType != null )
                 {
                     var attribute = new AttributeService( rockContext )

@@ -24,7 +24,7 @@ using System.Data.Entity.ModelConfiguration;
 using System.Runtime.Serialization;
 
 using Rock.Data;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Workflow;
 
 namespace Rock.Model
@@ -164,13 +164,12 @@ namespace Rock.Model
         #region ICacheable
 
         /// <summary>
-        /// Updates the cached attribute value of the cache object associated with this entity
+        /// Gets the cache object associated with this Entity
         /// </summary>
-        /// <param name="attributeKey">The attribute key.</param>
-        /// <param name="value">The value.</param>
-        public void UpdateCachedAttributeValue( string attributeKey, string value )
+        /// <returns></returns>
+        public IEntityCache GetCacheObject()
         {
-            CacheWorkflowActionForm.Get( this.Id )?.SetAttributeValue( attributeKey, value );
+            return WorkflowActionFormCache.Get( this.Id );
         }
 
         /// <summary>
@@ -180,7 +179,7 @@ namespace Rock.Model
         /// <param name="dbContext">The database context.</param>
         public void UpdateCache( System.Data.Entity.EntityState entityState, Rock.Data.DbContext dbContext )
         {
-            CacheWorkflowActionForm.UpdateCachedEntity( this.Id, entityState, dbContext as RockContext );
+            WorkflowActionFormCache.UpdateCachedEntity( this.Id, entityState );
         }
 
         #endregion
@@ -235,7 +234,7 @@ namespace Rock.Model
 
                     if ( details.Length > 1 )
                     {
-                        var definedValue = CacheDefinedValue.Get( details[1].AsGuid() );
+                        var definedValue = DefinedValueCache.Get( details[1].AsGuid() );
                         if ( definedValue != null )
                         {
                             button.Html = definedValue.GetAttributeValue( "ButtonHTML" );

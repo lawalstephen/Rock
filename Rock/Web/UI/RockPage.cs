@@ -30,11 +30,12 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using Rock.Data;
 using Rock.Model;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Transactions;
 using Rock.Security;
 using Rock.Web.UI.Controls;
 using Page = System.Web.UI.Page;
+using Rock.Attribute;
 
 namespace Rock.Web.UI
 {
@@ -48,7 +49,7 @@ namespace Rock.Web.UI
         private PlaceHolder phLoadStats;
         private LinkButton _btnRestoreImpersonatedByUser;
         private ScriptManager _scriptManager;
-        private CachePage _pageCache = null;
+        private PageCache _pageCache = null;
 
         private string _clientType = null;
 
@@ -147,9 +148,9 @@ namespace Rock.Web.UI
         /// Gets the current <see cref="Rock.Model.Page">Page's</see> layout.
         /// </summary>
         /// <value>
-        /// The <see cref="CacheLayout"/> representing the current <see cref="Rock.Model.Page">Page's</see> layout.
+        /// The <see cref="LayoutCache"/> representing the current <see cref="Rock.Model.Page">Page's</see> layout.
         /// </value>
-        public CacheLayout Layout
+        public LayoutCache Layout
         {
             get { return _pageCache.Layout; }
         }
@@ -158,10 +159,10 @@ namespace Rock.Web.UI
         /// Gets the <see cref="Rock.Model.Site"/> that the current <see cref="Rock.Model.Page"/> is on.
         /// </summary>
         /// <value>
-        /// A <see cref="CacheSite"/> representing the <see cref="Rock.Model.Site"/> that the current <see cref="Rock.Model.Page"/>
+        /// A <see cref="SiteCache"/> representing the <see cref="Rock.Model.Site"/> that the current <see cref="Rock.Model.Page"/>
         /// is on.
         /// </value>
-        public new CacheSite Site
+        public new SiteCache Site
         {
             get { return _pageCache.Layout.Site; }
         }
@@ -783,12 +784,7 @@ namespace Rock.Web.UI
                 }
 
                 // Check if there is a ROCK_PERSONALDEVICE_ADDRESS cookie, link person to device
-                if ( Request.Cookies["rock_wifi"] != null )
-                {
-                    HttpCookie httpCookie = Request.Cookies["rock_wifi"];
-                    LinkPersonAliasToDevice( ( int ) CurrentPersonAliasId, httpCookie.Values["ROCK_PERSONALDEVICE_ADDRESS"] );
-                    Response.Cookies["rock_wifi"].Expires = DateTime.Now.AddDays( -1 );
-                }
+                HandleRockWiFiCookie( CurrentPersonAliasId );
             }
 
             // If a PageInstance exists
@@ -905,7 +901,7 @@ namespace Rock.Web.UI
                             string[] parts = param.Split( '|' );
                             if ( parts.Length == 2 )
                             {
-                                var contextModelEntityType = CacheEntityType.Get( parts[0], false, rockContext );
+                                var contextModelEntityType = EntityTypeCache.Get( parts[0], false, rockContext );
                                 int? contextId = parts[1].AsIntegerOrNull();
 
                                 if ( contextModelEntityType != null && contextId.HasValue )
@@ -943,7 +939,21 @@ namespace Rock.Web.UI
                         GetCookieContext( GetContextCookieName( false ) );      // Site
                         GetCookieContext( GetContextCookieName( true ) );       // Page (will replace any site values)
 
-                        // check for page context
+                        // check to see if any of the ModelContext.Keys that got set from Cookies are on the URL. If so, the URL value overrides the Cookie value
+                        foreach ( var modelContextName in ModelContext.Keys.ToList() )
+                        {
+                            var type = Type.GetType( modelContextName, false, false );
+                            if ( type != null )
+                            {
+                                int? contextId = PageParameter( type.Name + "Id" ).AsIntegerOrNull();
+                                if ( contextId.HasValue )
+                                {
+                                    ModelContext.AddOrReplace( modelContextName, new Data.KeyEntity( contextId.Value ) );
+                                }
+                            }
+                        }
+
+                        // check for page context (that were explicitly set in Page Properties)
                         foreach ( var pageContext in _pageCache.PageContexts )
                         {
                             int? contextId = PageParameter( pageContext.Value ).AsIntegerOrNull();
@@ -1058,11 +1068,17 @@ namespace Rock.Web.UI
                         stopwatchInitEvents.Restart();
                     }
 
+                    // If the block's AttributeProperty values have not yet been verified verify them.
+                    // (This provides a mechanism for block developers to define the needed block
+                    //  attributes in code and have them automatically added to the database)
+                    Page.Trace.Warn( "\tChecking if block attributes need refresh" );
+                    VerifyBlockTypeInstanceProperties();
+
                     // Load the blocks and insert them into page zones
                     Page.Trace.Warn( "Loading Blocks" );
                     var pageBlocks = _pageCache.Blocks;
                     
-                    foreach ( Rock.Cache.CacheBlock block in pageBlocks )
+                    foreach ( BlockCache block in pageBlocks )
                     {
                         var stopwatchBlockInit= Stopwatch.StartNew();
                         Page.Trace.Warn( string.Format( "\tLoading '{0}' block", block.Name ) );
@@ -1091,7 +1107,7 @@ namespace Rock.Web.UI
                                 Page.Trace.Warn( "Getting memory cache" );
                                 string blockCacheKey = string.Format( "Rock:BlockOutput:{0}", block.Id );
                                 var blockCacheString = RockCache.Get( blockCacheKey ) as string;
-                                if ( blockCacheString.IsNotNullOrWhitespace() )
+                                if ( blockCacheString.IsNotNullOrWhiteSpace() )
                                 {
                                     // If the current block exists in our custom output cache, add the cached output instead of adding the control
                                     control = new LiteralControl( blockCacheString );
@@ -1157,27 +1173,7 @@ namespace Rock.Web.UI
 
                                     // If the blocktype's security actions have not yet been loaded, load them now
                                     block.BlockType.SetSecurityActions( blockControl );
-
-                                    // If the block's AttributeProperty values have not yet been verified verify them.
-                                    // (This provides a mechanism for block developers to define the needed block
-                                    //  attributes in code and have them automatically added to the database)
-                                    Page.Trace.Warn( "\tChecking if block attributes need refresh" );
-                                    if ( !block.BlockType.IsInstancePropertiesVerified )
-                                    {
-                                        Page.Trace.Warn( "\tCreating block attributes" );
-                                        if ( blockControl.CreateAttributes( rockContext ) )
-                                        {
-                                            // If attributes were updated, update the block attributes for all blocks in page of same type
-                                            pageBlocks
-                                                .Where( b => b.BlockTypeId == block.BlockTypeId )
-                                                .ToList()
-                                                .ForEach( b => b.ReloadAttributeValues() );
-                                        }
-                                        block.BlockType.MarkInstancePropertiesVerified( true );
-                                    }
-
                                 }
-
                             }
 
                             zone.Controls.Add( control );
@@ -1316,7 +1312,7 @@ namespace Rock.Web.UI
                             aPageSecurity.Attributes.Add( "class", "btn page-security" );
                             aPageSecurity.Attributes.Add( "height", "500px" );
                             aPageSecurity.Attributes.Add( "href", "javascript: Rock.controls.modal.show($(this), '" + ResolveUrl( string.Format( "~/Secure/{0}/{1}?t=Page Security&pb=&sb=Done",
-                                CacheEntityType.Get( typeof( Rock.Model.Page ) ).Id, _pageCache.Id ) ) + "')" );
+                                EntityTypeCache.Get( typeof( Rock.Model.Page ) ).Id, _pageCache.Id ) ) + "')" );
                             aPageSecurity.Attributes.Add( "Title", "Page Security" );
                             HtmlGenericControl iPageSecurity = new HtmlGenericControl( "i" );
                             aPageSecurity.Controls.Add( iPageSecurity );
@@ -1420,6 +1416,49 @@ namespace Rock.Web.UI
             }
         }
 
+
+        /// <summary>
+        /// The verify block type instance properties lock object
+        /// </summary>
+        private static readonly object _verifyBlockTypeInstancePropertiesLockObj = new object();
+
+        /// <summary>
+        /// Verifies the block type instance properties.
+        /// </summary>
+        private void VerifyBlockTypeInstanceProperties()
+        {
+            var blockTypesIdToVerify = _pageCache.Blocks.Select( a => a.BlockType ).Distinct().Where( a => a.IsInstancePropertiesVerified == false ).Select( a => a.Id ).ToList();
+            foreach ( int blockTypeId in blockTypesIdToVerify )
+            {
+                Page.Trace.Warn( "\tCreating block attributes" );
+
+                try
+                {
+                    if ( BlockTypeCache.Get( blockTypeId )?.IsInstancePropertiesVerified == false )
+                    {
+                        // make sure that only one thread is trying to compile block properties so that we don't get collisions and unneeded compiler overhead
+                        lock ( _verifyBlockTypeInstancePropertiesLockObj )
+                        {
+                            if ( BlockTypeCache.Get( blockTypeId )?.IsInstancePropertiesVerified == false )
+                            {
+                                using ( var rockContext = new RockContext() )
+                                {
+                                    string blockTypePath = BlockTypeCache.Get( blockTypeId ).Path;
+                                    var blockCompiledType = System.Web.Compilation.BuildManager.GetCompiledType( blockTypePath );
+                                    bool attributesUpdated = RockBlock.CreateAttributes( rockContext, blockCompiledType, blockTypeId );
+                                    BlockTypeCache.Get( blockTypeId )?.MarkInstancePropertiesVerified( true );
+                                }
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    // ignore if the block couldn't be compiled, it'll get logged and shown when the page tries to load the block into the page
+                }
+            }
+        }
+
         /// <summary>
         /// Raises the <see cref="E:System.Web.UI.Page.LoadComplete" /> event at the end of the page load stage.
         /// </summary>
@@ -1434,7 +1473,7 @@ namespace Rock.Web.UI
             {
                 if ( _pageCache.Layout.Site.EnablePageViews )
                 {
-                    var pageViewTransaction = new InteractionTransaction( CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.INTERACTIONCHANNELTYPE_WEBSITE ), this.Site, this._pageCache );
+                    var pageViewTransaction = new InteractionTransaction( DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.INTERACTIONCHANNELTYPE_WEBSITE ), this.Site, this._pageCache );
                     pageViewTransaction.Enqueue();
                 }
             }
@@ -1533,7 +1572,7 @@ namespace Rock.Web.UI
         /// </summary>
         public void LoadGoogleMapsApi()
         {
-            var googleAPIKey = CacheGlobalAttributes.Get().GetValue( "GoogleAPIKey" );
+            var googleAPIKey = GlobalAttributesCache.Get().GetValue( "GoogleAPIKey" );
             string keyParameter = string.IsNullOrWhiteSpace( googleAPIKey ) ? "" : string.Format( "key={0}&", googleAPIKey );
             string scriptUrl = string.Format( "https://maps.googleapis.com/maps/api/js?{0}libraries=drawing,visualization,geometry", keyParameter );
 
@@ -1653,8 +1692,8 @@ Sys.Application.add_load(function () {
         /// <summary>
         /// Sets the page.
         /// </summary>
-        /// <param name="pageCache">The <see cref="CachePage"/>.</param>
-        internal void SetPage( CachePage pageCache )
+        /// <param name="pageCache">The <see cref="PageCache"/>.</param>
+        internal void SetPage( PageCache pageCache )
         {
             _pageCache = pageCache;
 
@@ -1884,7 +1923,7 @@ Sys.Application.add_load(function () {
                 return string.Format( "{0}://{1}{2}", Context.Request.Url.Scheme, Context.Request.Url.Authority, virtualPath );
             }
 
-            return CacheGlobalAttributes.Get().GetValue("PublicApplicationRoot").EnsureTrailingForwardslash() + virtualPath.RemoveLeadingForwardslash();
+            return GlobalAttributesCache.Get().GetValue("PublicApplicationRoot").EnsureTrailingForwardslash() + virtualPath.RemoveLeadingForwardslash();
         }
 
         /// <summary>
@@ -1909,15 +1948,15 @@ Sys.Application.add_load(function () {
         /// Gets the context entity types.
         /// </summary>
         /// <returns></returns>
-        public List<CacheEntityType> GetContextEntityTypes()
+        public List<EntityTypeCache> GetContextEntityTypes()
         {
-            var result = new List<CacheEntityType>();
+            var result = new List<EntityTypeCache>();
 
             if ( this.ModelContext != null )
             {
                 foreach ( var item in this.ModelContext.Keys )
                 {
-                    var entityType = CacheEntityType.Get( item );
+                    var entityType = EntityTypeCache.Get( item );
                     if ( entityType != null )
                     {
                         result.Add( entityType );
@@ -1930,20 +1969,9 @@ Sys.Application.add_load(function () {
         /// <summary>
         /// Gets the current context object for a given entity type.
         /// </summary>
-        /// <param name="entity">The <see cref="CacheEntityType"/> containing a reference to the entity.</param>
+        /// <param name="entity">The <see cref="EntityTypeCache"/> containing a reference to the entity.</param>
         /// <returns>An object that implements the <see cref="Rock.Data.IEntity"/> interface referencing the context object. </returns>
-        [Obsolete]
-        public Rock.Data.IEntity GetCurrentContext( Web.Cache.EntityTypeCache entity )
-        {
-            return GetCurrentContext( CacheEntityType.Get( entity.Id ) );
-        }
-
-        /// <summary>
-        /// Gets the current context object for a given entity type.
-        /// </summary>
-        /// <param name="entity">The <see cref="CacheEntityType"/> containing a reference to the entity.</param>
-        /// <returns>An object that implements the <see cref="Rock.Data.IEntity"/> interface referencing the context object. </returns>
-        public Rock.Data.IEntity GetCurrentContext( CacheEntityType entity )
+        public Rock.Data.IEntity GetCurrentContext( EntityTypeCache entity )
         {
             if ( this.ModelContext.ContainsKey( entity.Name ) )
             {
@@ -2117,6 +2145,23 @@ Sys.Application.add_load(function () {
             }
         }
 
+        private void HandleRockWiFiCookie( int? personAliasId )
+        {
+            if ( personAliasId == null)
+            {
+                return;
+            }
+
+            if ( Request.Cookies["rock_wifi"] != null )
+            {
+                HttpCookie httpCookie = Request.Cookies["rock_wifi"];
+                if ( LinkPersonAliasToDevice( ( int ) personAliasId, httpCookie.Values["ROCK_PERSONALDEVICE_ADDRESS"] ) )
+                {
+                    Response.Cookies["rock_wifi"].Expires = DateTime.Now.AddDays( -1 );
+                }
+            }
+        }
+
         /// <summary>
         /// Gets the name of the context cookie.
         /// </summary>
@@ -2143,18 +2188,18 @@ Sys.Application.add_load(function () {
         /// Links the person alias to device.
         /// </summary>
         /// <param name="personAliasId">The person alias identifier.</param>
-        /// <param name="MacAddress">The mac address.</param>
-        public void LinkPersonAliasToDevice(int personAliasId, string MacAddress)
+        /// <param name="macAddress">The mac address.</param>
+        public bool LinkPersonAliasToDevice(int personAliasId, string macAddress)
         {
             using ( var rockContext = new RockContext() )
             {
                 PersonalDeviceService personalDeviceService = new PersonalDeviceService( rockContext );
-                PersonalDevice personalDevice = personalDeviceService.GetByMACAddress( MacAddress );
+                PersonalDevice personalDevice = personalDeviceService.GetByMACAddress( macAddress );
 
                 // It's possible that the device was deleted from the DB but a cookie still exists
-                if ( personalDevice == null )
+                if ( personalDevice == null || personAliasId == 0 )
                 {
-                    return;
+                    return false;
                 }
 
                 // Assign the current Person.Alias to the device and save
@@ -2167,6 +2212,8 @@ Sys.Application.add_load(function () {
                 // Update interactions for this device with this person.alias if they don't already have one.
                 InteractionService interactionService = new InteractionService( rockContext );
                 interactionService.UpdateInteractionsWithPersonAliasIdForDeviceId( personAliasId, personalDevice.Id );
+
+                return true;
             }
         }
 
@@ -2710,8 +2757,8 @@ Sys.Application.add_load(function () {
         /// </summary>
         /// <param name="page">The page.</param>
         /// <param name="script">The script.</param>
-        /// <param name="AddScriptTags">if set to <c>true</c> [add script tags].</param>
-        public static void AddScriptToHead( Page page, string script, bool AddScriptTags )
+        /// <param name="addScriptTags">if set to <c>true</c> [add script tags].</param>
+        public static void AddScriptToHead( Page page, string script, bool addScriptTags )
         {
             if ( page != null && page.Header != null )
             {
@@ -2719,7 +2766,7 @@ Sys.Application.add_load(function () {
 
                 Literal l = new Literal();
 
-                if ( AddScriptTags )
+                if ( addScriptTags )
                 {
                     l.Text = string.Format( @"
     <script type=""text/javascript""> 
@@ -2981,7 +3028,7 @@ Sys.Application.add_load(function () {
         {
             foreach ( var rockBlock in RockBlocks )
             {
-                if ( rockBlock.CacheBlock.BlockType.Path.Equals( blockTypePath, StringComparison.OrdinalIgnoreCase ) )
+                if ( rockBlock.BlockCache.BlockType.Path.Equals( blockTypePath, StringComparison.OrdinalIgnoreCase ) )
                 {
                     OnBlockUpdated( rockBlock.BlockId );
                 }

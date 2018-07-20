@@ -24,7 +24,7 @@ using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration;
 using System.Linq;
 using System.Runtime.Serialization;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Data;
 using Rock.UniversalSearch;
 using Rock.UniversalSearch.Crawler;
@@ -584,7 +584,7 @@ namespace Rock.Model
                 }
                 catch { }
 
-                return new Uri( Rock.Cache.CacheGlobalAttributes.Get().GetValue( "PublicApplicationRoot" ) );
+                return new Uri( GlobalAttributesCache.Get().GetValue( "PublicApplicationRoot" ) );
             }
         }
 
@@ -715,13 +715,12 @@ namespace Rock.Model
         #region ICacheable
 
         /// <summary>
-        /// Updates the cached attribute value of the cache object associated with this entity
+        /// Gets the cache object associated with this Entity
         /// </summary>
-        /// <param name="attributeKey">The attribute key.</param>
-        /// <param name="value">The value.</param>
-        public void UpdateCachedAttributeValue( string attributeKey, string value )
+        /// <returns></returns>
+        public IEntityCache GetCacheObject()
         {
-            CacheSite.Get( this.Id )?.SetAttributeValue( attributeKey, value );
+            return SiteCache.Get( this.Id );
         }
 
         /// <summary>
@@ -731,7 +730,7 @@ namespace Rock.Model
         /// <param name="dbContext">The database context.</param>
         public void UpdateCache( System.Data.Entity.EntityState entityState, Rock.Data.DbContext dbContext )
         {
-            CacheSite.UpdateCachedEntity( this.Id, entityState, dbContext as RockContext );
+            SiteCache.UpdateCachedEntity( this.Id, entityState );
 
             using ( var rockContext = new RockContext() )
             {
@@ -739,7 +738,7 @@ namespace Rock.Model
                         .Select( p => p.Id )
                         .ToList() )
                 {
-                    CachePage.UpdateCachedEntity( pageId, EntityState.Detached, dbContext as RockContext );
+                    PageCache.UpdateCachedEntity( pageId, EntityState.Detached );
                 }
             }
         }

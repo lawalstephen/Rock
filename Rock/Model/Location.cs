@@ -26,7 +26,7 @@ using System.Runtime.Serialization;
 using System.Text;
 
 using Rock.Data;
-using Rock.Cache;
+using Rock.Web.Cache;
 using System.Data.Entity;
 
 namespace Rock.Model
@@ -512,7 +512,7 @@ namespace Rock.Model
         {
             get
             {
-                var campuses = CacheCampus.All();
+                var campuses = CampusCache.All();
 
                 int? campusId = null;
                 Location loc = this;
@@ -704,11 +704,8 @@ namespace Rock.Model
 
             string result = string.Format( "{0} {1} {2}, {3} {4}",
                 this.Street1, this.Street2, this.City, this.State, this.PostalCode ).ReplaceWhileExists( "  ", " " );
+            var countryValue = DefinedTypeCache.Get( new Guid( SystemGuid.DefinedType.LOCATION_COUNTRIES ) ).GetDefinedValueFromValue( this.Country );
 
-            var countryValue = Rock.Cache.CacheDefinedType.Get( new Guid( SystemGuid.DefinedType.LOCATION_COUNTRIES ) )
-                .DefinedValues
-                .Where( v => v.Value.Equals( this.Country, StringComparison.OrdinalIgnoreCase ) )
-                .FirstOrDefault();
             if ( countryValue != null )
             {
                 string format = countryValue.GetAttributeValue( "AddressFormat" );
@@ -794,13 +791,12 @@ namespace Rock.Model
         }
 
         /// <summary>
-        /// Updates the cached attribute value of the cache object associated with this entity
+        /// Gets the cache object associated with this Entity
         /// </summary>
-        /// <param name="attributeKey">The attribute key.</param>
-        /// <param name="value">The value.</param>
-        public void UpdateCachedAttributeValue( string attributeKey, string value )
+        /// <returns></returns>
+        public IEntityCache GetCacheObject()
         {
-            // no cached attribute values are impacted
+            return null;
         }
 
         /// <summary>
@@ -810,17 +806,17 @@ namespace Rock.Model
         /// <param name="dbContext">The database context.</param>
         public void UpdateCache( System.Data.Entity.EntityState entityState, Rock.Data.DbContext dbContext )
         {
-            // CacheCampus has a CampusLocation that could get stale when Location changes, so refresh the CampusCache for this location's Campus
+            // CampusCache has a CampusLocation that could get stale when Location changes, so refresh the CampusCache for this location's Campus
             if ( this.CampusId.HasValue )
             {
-                CacheCampus.UpdateCachedEntity( this.CampusId.Value, EntityState.Detached, dbContext as RockContext );
+                CampusCache.UpdateCachedEntity( this.CampusId.Value, EntityState.Detached );
             }
 
-            // and also refresh the CacheCampus for any Campus that uses this location
-            foreach ( var campus in CacheCampus.All()
+            // and also refresh the CampusCache for any Campus that uses this location
+            foreach ( var campus in CampusCache.All()
                 .Where( c => c.LocationId == this.Id ) )
             {
-                CacheCampus.UpdateCachedEntity( campus.Id, EntityState.Detached, dbContext as RockContext );
+                CampusCache.UpdateCachedEntity( campus.Id, EntityState.Detached );
             }
         }
 

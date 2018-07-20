@@ -24,7 +24,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web.Routing;
 using Newtonsoft.Json;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Data;
 using Rock.Security;
 
@@ -397,7 +397,7 @@ namespace Rock.Model
         {
             get
             {
-                var layout = Cache.CacheLayout.Get( this.LayoutId );
+                var layout = LayoutCache.Get( this.LayoutId );
                 return layout != null ? layout.SiteId : 0;
             }
         }
@@ -558,13 +558,12 @@ namespace Rock.Model
         }
 
         /// <summary>
-        /// Updates the cached attribute value of the cache object associated with this entity
+        /// Gets the cache object associated with this Entity
         /// </summary>
-        /// <param name="attributeKey">The attribute key.</param>
-        /// <param name="value">The value.</param>
-        public void UpdateCachedAttributeValue( string attributeKey, string value )
+        /// <returns></returns>
+        public IEntityCache GetCacheObject()
         {
-            CachePage.Get( this.Id )?.SetAttributeValue( attributeKey, value );
+            return PageCache.Get( this.Id );
         }
 
         /// <summary>
@@ -574,22 +573,22 @@ namespace Rock.Model
         /// <param name="dbContext">The database context.</param>
         public void UpdateCache( System.Data.Entity.EntityState entityState, Rock.Data.DbContext dbContext )
         {
-            var oldPageCache = CachePage.Get( this.Id );
+            var oldPageCache = PageCache.Get( this.Id, (RockContext)dbContext );
             if ( oldPageCache != null )
             {
                 oldPageCache.RemoveChildPages();
             }
 
-            CachePage.UpdateCachedEntity( this.Id, entityState, dbContext as RockContext );
+            PageCache.UpdateCachedEntity( this.Id, entityState );
 
             if ( this.ParentPageId.HasValue )
             {
-                CachePage.UpdateCachedEntity( this.ParentPageId.Value, System.Data.Entity.EntityState.Detached, dbContext as RockContext );
+                PageCache.UpdateCachedEntity( this.ParentPageId.Value, System.Data.Entity.EntityState.Detached );
             }
 
             if ( _originalParentPageId.HasValue && _originalParentPageId != this.ParentPageId )
             {
-                CachePage.UpdateCachedEntity( _originalParentPageId.Value, System.Data.Entity.EntityState.Detached, dbContext as RockContext );
+                PageCache.UpdateCachedEntity( _originalParentPageId.Value, System.Data.Entity.EntityState.Detached );
             }
         }
 

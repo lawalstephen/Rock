@@ -23,7 +23,7 @@ using System.Web.UI.WebControls;
 
 using Rock;
 using Rock.Attribute;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Data;
 using Rock.Model;
 using Rock.Transactions;
@@ -57,6 +57,9 @@ Guid - ContentChannelItem Guid
 {{ Item.Content }}" )]
 
     [IntegerField( "Output Cache Duration", "Number of seconds to cache the resolved output. Only cache the output if you are not personalizing the output based on current user, current page, or any other merge field value.", required: false, key: "OutputCacheDuration", category: "CustomSetting" )]
+    [IntegerField( "Item Cache Duration", "Number of seconds to cache the content item specified by the parameter.", false, 3600, "CustomSetting", 0, "ItemCacheDuration" )]
+    [CustomCheckboxListField( "Cache Tags", "Cached tags are used to link cached content so that it can be expired as a group", listSource: "", required: false, key: "CacheTags", category: "CustomSetting" )]
+
     [BooleanField( "Set Page Title", "Determines if the block should set the page title with the channel name or content item.", category: "CustomSetting" )]
 
     [BooleanField( "Log Interactions", category: "CustomSetting" )]
@@ -83,6 +86,11 @@ Guid - ContentChannelItem Guid
         /// The output cache key prefix
         /// </summary>
         private const string OUTPUT_CACHE_KEY_PREFIX = "Output_";
+
+        /// <summary>
+        /// The item cache key prefix
+        /// </summary>
+        private const string ITEM_CACHE_KEY_PREFIX = "Item_";
 
         /// <summary>
         /// The pagetitle cache key prefix
@@ -157,6 +165,23 @@ Guid - ContentChannelItem Guid
             }
         }
 
+        /// <summary>
+        /// Shows or hides the workflow settings controls based on the selection in the workflowpicker.
+        /// </summary>
+        protected void ShowHideContorls()
+        {
+            if ( wtpWorkflowType.SelectedValue == "0" )
+            {
+                cbLaunchWorkflowOnlyIfIndividualLoggedIn.Visible = false;
+                ddlLaunchWorkflowCondition.Visible = false;
+            }
+            else
+            {
+                cbLaunchWorkflowOnlyIfIndividualLoggedIn.Visible = true;
+                ddlLaunchWorkflowCondition.Visible = true;
+            }
+        }
+
         #endregion Base Control Methods
 
         #region Settings
@@ -169,7 +194,7 @@ Guid - ContentChannelItem Guid
             pnlSettings.Visible = true;
             ddlContentChannel.Items.Clear();
             ddlContentChannel.Items.Add( new ListItem() );
-            foreach ( var contentChannel in CacheContentChannel.All().OrderBy( a => a.Name ) )
+            foreach ( var contentChannel in ContentChannelCache.All().OrderBy( a => a.Name ) )
             {
                 ddlContentChannel.Items.Add( new ListItem( contentChannel.Name, contentChannel.Guid.ToString() ) );
             }
@@ -187,10 +212,31 @@ Guid - ContentChannelItem Guid
             tbContentChannelQueryParameter.Text = this.GetAttributeValue( "ContentChannelQueryParameter" );
             ceLavaTemplate.Text = this.GetAttributeValue( "LavaTemplate" );
             nbOutputCacheDuration.Text = this.GetAttributeValue( "OutputCacheDuration" );
+            nbItemCacheDuration.Text = this.GetAttributeValue( "ItemCacheDuration" );
+
+            DefinedValueService definedValueService = new DefinedValueService( new RockContext() );
+            cblCacheTags.DataSource = definedValueService.GetByDefinedTypeGuid( Rock.SystemGuid.DefinedType.CACHE_TAGS.AsGuid() ).Select( v => v.Value ).ToList();
+            cblCacheTags.DataBind();
+            string[] selectedCacheTags = this.GetAttributeValue( "CacheTags" ).SplitDelimitedValues();
+            foreach( ListItem cacheTag in cblCacheTags.Items )
+            {
+                cacheTag.Selected = selectedCacheTags.Contains( cacheTag.Value );
+            }
+
             cbSetPageTitle.Checked = this.GetAttributeValue( "SetPageTitle" ).AsBoolean();
 
-            cbLogInteractions.Checked = this.GetAttributeValue( "LogInteractions" ).AsBoolean();
-            cbWriteInteractionOnlyIfIndividualLoggedIn.Checked = this.GetAttributeValue( "WriteInteractionOnlyIfIndividualLoggedIn" ).AsBoolean();
+            if ( this.GetAttributeValue( "LogInteractions" ).AsBoolean() )
+            {
+                cbLogInteractions.Checked = true;
+                cbWriteInteractionOnlyIfIndividualLoggedIn.Visible = true;
+                cbWriteInteractionOnlyIfIndividualLoggedIn.Checked = this.GetAttributeValue( "WriteInteractionOnlyIfIndividualLoggedIn" ).AsBoolean();
+            }
+            else
+            {
+                cbLogInteractions.Checked = false;
+                cbWriteInteractionOnlyIfIndividualLoggedIn.Visible = false;
+                cbWriteInteractionOnlyIfIndividualLoggedIn.Checked = false;
+            }
 
             var rockContext = new RockContext();
 
@@ -204,6 +250,8 @@ Guid - ContentChannelItem Guid
             {
                 wtpWorkflowType.SetValue( null );
             }
+
+            ShowHideContorls();
 
             cbLaunchWorkflowOnlyIfIndividualLoggedIn.Checked = this.GetAttributeValue( "LaunchWorkflowOnlyIfIndividualLoggedIn" ).AsBoolean();
             ddlLaunchWorkflowCondition.SetValue( this.GetAttributeValue( "LaunchWorkflowCondition" ) );
@@ -234,6 +282,8 @@ Guid - ContentChannelItem Guid
             this.SetAttributeValue( "ContentChannelQueryParameter", tbContentChannelQueryParameter.Text );
             this.SetAttributeValue( "LavaTemplate", ceLavaTemplate.Text );
             this.SetAttributeValue( "OutputCacheDuration", nbOutputCacheDuration.Text );
+            this.SetAttributeValue( "ItemCacheDuration", nbItemCacheDuration.Text );
+            this.SetAttributeValue( "CacheTags", cblCacheTags.SelectedValues.AsDelimited( "," ) );
             this.SetAttributeValue( "SetPageTitle", cbSetPageTitle.Checked.ToString() );
             this.SetAttributeValue( "LogInteractions", cbLogInteractions.Checked.ToString() );
             this.SetAttributeValue( "WriteInteractionOnlyIfIndividualLoggedIn", cbWriteInteractionOnlyIfIndividualLoggedIn.Checked.ToString() );
@@ -241,7 +291,7 @@ Guid - ContentChannelItem Guid
             Guid? selectedWorkflowTypeGuid = null;
             if ( selectedWorkflowTypeId.HasValue )
             {
-                selectedWorkflowTypeGuid = CacheWorkflowType.Get( selectedWorkflowTypeId.Value ).Guid;
+                selectedWorkflowTypeGuid = WorkflowTypeCache.Get( selectedWorkflowTypeId.Value ).Guid;
             }
 
             this.SetAttributeValue( "WorkflowType", selectedWorkflowTypeGuid.ToString() );
@@ -290,6 +340,16 @@ Guid - ContentChannelItem Guid
         {
             var channelGuid = ddlContentChannel.SelectedValue.AsGuidOrNull();
             UpdateSocialMediaDropdowns( channelGuid );
+        }
+
+        /// <summary>
+        /// Handles the SelectItem event of the wtpWorkflowType control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void wtpWorkflowType_SelectItem( object sender, EventArgs e )
+        {
+            ShowHideContorls();
         }
 
         #endregion Events
@@ -354,7 +414,7 @@ Guid - ContentChannelItem Guid
                 var channelGuid = this.GetAttributeValue( "ContentChannel" ).AsGuidOrNull();
                 if ( channelGuid.HasValue )
                 {
-                    var channel = CacheContentChannel.Get( channelGuid.Value );
+                    var channel = ContentChannelCache.Get( channelGuid.Value );
                     if ( channel != null )
                     {
                         if ( contentChannelItem.ContentChannelId != channel.Id )
@@ -397,16 +457,21 @@ Guid - ContentChannelItem Guid
 
                 if ( outputCacheDuration.HasValue && outputCacheDuration.Value > 0 )
                 {
+                    string cacheTags = GetAttributeValue( "CacheTags" ) ?? string.Empty;
                     var cacheKeys = GetCacheItem( CACHEKEYS_CACHE_KEY ) as HashSet<string> ?? new HashSet<string>();
                     cacheKeys.Add( outputCacheKey );
                     cacheKeys.Add( pageTitleCacheKey );
-                    AddCacheItem( CACHEKEYS_CACHE_KEY, cacheKeys );
-                    AddCacheItem( outputCacheKey, outputContents, outputCacheDuration.Value );
-                    AddCacheItem( pageTitleCacheKey, pageTitle, outputCacheDuration.Value );
+                    AddCacheItem( CACHEKEYS_CACHE_KEY, cacheKeys, TimeSpan.MaxValue, cacheTags );
+                    AddCacheItem( outputCacheKey, outputContents, outputCacheDuration.Value, cacheTags );
+
+                    if ( pageTitle != null )
+                    {
+                        AddCacheItem( pageTitleCacheKey, pageTitle, outputCacheDuration.Value, cacheTags );
+                    }
                 }
             }
 
-            phContent.Controls.Add( new LiteralControl( outputContents ) );
+            lContentOutput.Text = outputContents;
 
             if ( setPageTitle && pageTitle != null )
             {
@@ -424,14 +489,27 @@ Guid - ContentChannelItem Guid
         /// Gets the content channel item using the first page parameter or ContentChannelQueryParameter
         /// </summary>
         /// <returns></returns>
-        private static ContentChannelItem GetContentChannelItem( string contentChannelItemKey )
+        private ContentChannelItem GetContentChannelItem( string contentChannelItemKey )
         {
+            int? itemCacheDuration = GetAttributeValue( "ItemCacheDuration" ).AsIntegerOrNull();
+            
             ContentChannelItem contentChannelItem = null;
 
             if ( string.IsNullOrEmpty( contentChannelItemKey ) )
             {
                 // nothing specified, so don't show anything
                 return null;
+            }
+
+            string itemCacheKey = ITEM_CACHE_KEY_PREFIX + contentChannelItemKey;
+
+            if ( itemCacheDuration.HasValue && itemCacheDuration.Value > 0 )
+            {
+                contentChannelItem = GetCacheItem( itemCacheKey ) as ContentChannelItem;
+                if ( contentChannelItem != null )
+                {
+                    return contentChannelItem;
+                }
             }
 
             // look up the ContentChannelItem from either the Id, Guid, or Slug depending on the datatype of the ContentChannelQueryParameter value
@@ -450,6 +528,14 @@ Guid - ContentChannelItem Guid
             else
             {
                 contentChannelItem = new ContentChannelItemService( rockContext ).Queryable().Where( a => a.ContentChannelItemSlugs.Any( s => s.Slug == contentChannelItemKey ) ).FirstOrDefault();
+            }
+
+            if ( contentChannelItem != null && itemCacheDuration.HasValue && itemCacheDuration.Value > 0 )
+            {
+                var cacheKeys = GetCacheItem( CACHEKEYS_CACHE_KEY ) as HashSet<string> ?? new HashSet<string>();
+                cacheKeys.Add( itemCacheKey );
+                AddCacheItem( CACHEKEYS_CACHE_KEY, cacheKeys );
+                AddCacheItem( itemCacheKey, contentChannelItem, itemCacheDuration.Value );
             }
 
             return contentChannelItem;
@@ -477,7 +563,14 @@ Guid - ContentChannelItem Guid
                 }
                 else
                 {
-                    contentChannelItemKey = this.PageParameters().Select( a => a.Value.ToString() ).FirstOrDefault();
+                    var currentRoute = ( ( System.Web.Routing.Route ) Page.RouteData.Route );
+
+                    // if this is the standard "page/{PageId" route, don't grab the Item from the route since it would just be the pageId
+                    if ( currentRoute == null || currentRoute.Url != "page/{PageId}" )
+                    {
+                        // if no specific Parameter was specified, and there was no QueryString, get whatever the last Parameter in the Route is
+                        contentChannelItemKey = this.PageParameters().Select( a => a.Value.ToString() ).LastOrDefault();
+                    }
                 }
 
             }
@@ -506,7 +599,7 @@ Guid - ContentChannelItem Guid
             var contentChannelItem = GetContentChannelItem( GetContentChannelItemParameterValue() );
 
             var interactionTransaction = new InteractionTransaction(
-                CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.INTERACTIONCHANNELTYPE_CONTENTCHANNEL.AsGuid() ),
+                DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.INTERACTIONCHANNELTYPE_CONTENTCHANNEL.AsGuid() ),
                 contentChannelItem.ContentChannel,
                 contentChannelItem );
 
@@ -521,14 +614,14 @@ Guid - ContentChannelItem Guid
         private void LaunchWorkflow()
         {
             // Check to see if a workflow should be launched when viewed
-            CacheWorkflowType workflowType = null;
+            WorkflowTypeCache workflowType = null;
             Guid? workflowTypeGuid = GetAttributeValue( "WorkflowType" ).AsGuidOrNull();
             if ( !workflowTypeGuid.HasValue )
             {
                 return;
             }
 
-            workflowType = CacheWorkflowType.Get( workflowTypeGuid.Value );
+            workflowType = WorkflowTypeCache.Get( workflowTypeGuid.Value );
 
             if ( workflowType == null || ( workflowType.IsActive != true ) )
             {
@@ -642,7 +735,7 @@ Guid - ContentChannelItem Guid
 
             if ( attributeEntityType == "C" )
             {
-                mergeObject = CacheContentChannel.Get( contentChannelItem.ContentChannelId );
+                mergeObject = ContentChannelCache.Get( contentChannelItem.ContentChannelId );
             }
             else
             {
@@ -663,8 +756,8 @@ Guid - ContentChannelItem Guid
         /// <param name="channelGuid">The channel unique identifier.</param>
         private void UpdateSocialMediaDropdowns( Guid? channelGuid )
         {
-            List<CacheAttribute> channelAttributes = new List<CacheAttribute>();
-            List<CacheAttribute> itemAttributes = new List<CacheAttribute>();
+            List<AttributeCache> channelAttributes = new List<AttributeCache>();
+            List<AttributeCache> itemAttributes = new List<AttributeCache>();
 
             if ( channelGuid.HasValue )
             {
@@ -748,5 +841,25 @@ Guid - ContentChannelItem Guid
         }
 
         #endregion Methods
+
+        /// <summary>
+        /// Handles the CheckedChanged event of the cbLogInteractions control.
+        /// If log interactions is not enabled then don't allow write interaction setting.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void cbLogInteractions_CheckedChanged( object sender, EventArgs e )
+        {
+            if (cbLogInteractions.Checked)
+            {
+                cbWriteInteractionOnlyIfIndividualLoggedIn.Visible = true;
+                cbWriteInteractionOnlyIfIndividualLoggedIn.Checked = true;
+            }
+            else
+            {
+                cbWriteInteractionOnlyIfIndividualLoggedIn.Visible = false;
+                cbWriteInteractionOnlyIfIndividualLoggedIn.Checked = false;
+            }
+        }
     }
 }

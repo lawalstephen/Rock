@@ -18,7 +18,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 using System.Runtime.Serialization;
-using Rock.Cache;
+using Rock.Web.Cache;
 using Rock.Data;
 
 namespace Rock.Model
@@ -121,13 +121,12 @@ namespace Rock.Model
         #region ICacheable
 
         /// <summary>
-        /// Updates the cached attribute value of the cache object associated with this entity
+        /// Gets the cache object associated with this Entity
         /// </summary>
-        /// <param name="attributeKey">The attribute key.</param>
-        /// <param name="value">The value.</param>
-        public void UpdateCachedAttributeValue( string attributeKey, string value )
+        /// <returns></returns>
+        public IEntityCache GetCacheObject()
         {
-            CacheRestAction.Get( this.Id )?.SetAttributeValue( attributeKey, value );
+            return RestActionCache.Get( this.Id );
         }
 
         /// <summary>
@@ -137,7 +136,7 @@ namespace Rock.Model
         /// <param name="dbContext">The database context.</param>
         public void UpdateCache( System.Data.Entity.EntityState entityState, Rock.Data.DbContext dbContext )
         {
-            CacheRestAction.UpdateCachedEntity( this.Id, entityState, dbContext as RockContext );
+            RestActionCache.UpdateCachedEntity( this.Id, entityState );
         }
 
         #endregion
