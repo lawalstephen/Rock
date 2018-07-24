@@ -288,7 +288,7 @@ namespace Rock.Utility
 
             ProcessNcoaResults( sparkDataConfig );
 
-            sparkDataApi.NcoaCompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
+            sparkDataApi.NcoaCompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.FileName, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
             
             //Notify group
             SentNotification( sparkDataConfig, "finished" );
