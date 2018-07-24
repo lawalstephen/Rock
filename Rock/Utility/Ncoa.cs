@@ -51,7 +51,7 @@ namespace Rock.Utility
             var dataView = dataViewService.GetNoTracking( dataViewId );
 
             // Verify that there is not a child filter that uses this view (would result in stack-overflow error)
-            if ( dataViewService.IsViewInFilter( dataView.Id, dataView.DataViewFilter ) )
+            if (dataViewService.IsViewInFilter( dataView.Id, dataView.DataViewFilter ))
             {
                 throw new Exception( "Data View Filter issue(s): One of the filters contains a circular reference to the Data View itself." );
             }
@@ -67,7 +67,7 @@ namespace Rock.Utility
 
             var whereExpression = dataView.GetExpression( personService, paramExpression, out errorMessages );
 
-            if ( errorMessages.Any() )
+            if (errorMessages.Any())
             {
                 throw new Exception( "Data View Filter issue(s): " + errorMessages.AsDelimited( "; " ) );
             }
@@ -82,13 +82,13 @@ namespace Rock.Utility
         /// <returns>Directory of addresses</returns>
         public Dictionary<int, PersonAddressItem> GetAddresses( int? dataViewId )
         {
-            using ( RockContext rockContext = new RockContext() )
+            using (RockContext rockContext = new RockContext())
             {
                 var familyGroupType = GroupTypeCache.Get( Rock.SystemGuid.GroupType.GROUPTYPE_FAMILY.AsGuid() );
                 var homeLoc = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.GROUP_LOCATION_TYPE_HOME.AsGuid() );
                 var inactiveStatus = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_INACTIVE.AsGuid() );
 
-                if ( familyGroupType != null && homeLoc != null && inactiveStatus != null )
+                if (familyGroupType != null && homeLoc != null && inactiveStatus != null)
                 {
                     var groupMembers = new GroupMemberService( rockContext )
                         .Queryable().AsNoTracking()
@@ -121,7 +121,7 @@ namespace Rock.Utility
                             } ).FirstOrDefault()
                     } ).Where( m => m.HomeLocation != null ).DistinctBy( m => m.PersonId );
 
-                    if ( dataViewId.HasValue )
+                    if (dataViewId.HasValue)
                     {
                         var dataViewQuery = DataViewPeopleDirectory( dataViewId.Value, rockContext );
                         peopleHomelocation = peopleHomelocation.Where( p => dataViewQuery.ContainsKey( p.PersonId ) );
@@ -155,7 +155,7 @@ namespace Rock.Utility
         }
 
         #endregion
-        
+
         #region Executing TrueNCOA states
         /// <summary>
         /// Starts the NCOA request.
@@ -164,14 +164,14 @@ namespace Rock.Utility
         /// <param name="personAliasId">The person alias identifier.</param>
         public void Start( SparkDataConfig sparkDataConfig )
         {
-            if ( sparkDataConfig == null )
+            if (sparkDataConfig == null)
             {
                 sparkDataConfig = GetSettings();
             }
 
             SparkDataApi.SparkDataApi sparkDataApi = new SparkDataApi.SparkDataApi();
             var accountStatus = sparkDataApi.CheckAccount( sparkDataConfig.SparkDataApiKey );
-            switch ( accountStatus )
+            switch (accountStatus)
             {
                 case SparkDataApi.SparkDataApi.AccountStatus.AccountNoName:
                     throw new UnauthorizedAccessException( "Account does not have a name." );
@@ -188,7 +188,7 @@ namespace Rock.Utility
             }
 
             var addresses = GetAddresses( sparkDataConfig.NcoaSettings.PersonDataViewId );
-            if ( addresses.Count == 0)
+            if (addresses.Count == 0)
             {
                 sparkDataConfig.NcoaSettings.LastRunDate = RockDateTime.Now;
                 sparkDataConfig.NcoaSettings.CurrentReportStatus = "Complete";
@@ -213,7 +213,7 @@ namespace Rock.Utility
             SaveSettings( sparkDataConfig );
 
             // Delete previous NcoaHistory entries
-            using ( RockContext rockContext = new RockContext() )
+            using (RockContext rockContext = new RockContext())
             {
                 NcoaHistoryService ncoaHistoryService = new NcoaHistoryService( rockContext );
                 ncoaHistoryService.DeleteRange( ncoaHistoryService.Queryable() );
@@ -227,7 +227,7 @@ namespace Rock.Utility
         /// <param name="sparkDataConfig">The spark data configuration.</param>
         public void PendingReport( SparkDataConfig sparkDataConfig = null )
         {
-            if ( sparkDataConfig == null )
+            if (sparkDataConfig == null)
             {
                 sparkDataConfig = GetSettings();
             }
@@ -235,7 +235,7 @@ namespace Rock.Utility
             SparkDataApi.SparkDataApi sparkDataApi = new SparkDataApi.SparkDataApi();
             var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
             var trueNcoaApi = new TrueNcoaApi( credentials );
-            if ( !trueNcoaApi.IsReportCreated( sparkDataConfig.NcoaSettings.CurrentReportKey ) )
+            if (!trueNcoaApi.IsReportCreated( sparkDataConfig.NcoaSettings.CurrentReportKey ))
             {
                 return;
             }
@@ -254,7 +254,7 @@ namespace Rock.Utility
         /// <param name="sparkDataConfig">The spark data configuration.</param>
         public void PendingExport( SparkDataConfig sparkDataConfig = null )
         {
-            if ( sparkDataConfig == null )
+            if (sparkDataConfig == null)
             {
                 sparkDataConfig = GetSettings();
             }
@@ -263,18 +263,20 @@ namespace Rock.Utility
             var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
 
             var trueNcoaApi = new TrueNcoaApi( credentials );
-            if ( !trueNcoaApi.IsReportExportCreated( sparkDataConfig.NcoaSettings.FileName ) )
+            if (!trueNcoaApi.IsReportExportCreated( sparkDataConfig.NcoaSettings.FileName ))
             {
                 return;
             }
 
             List<TrueNcoaReturnRecord> trueNcoaReturnRecords;
             trueNcoaApi.DownloadExport( sparkDataConfig.NcoaSettings.CurrentReportExportKey, out trueNcoaReturnRecords );
+            var ncoaHistoryList = trueNcoaReturnRecords.Select( r => r.ToNcoaHistory() ).ToList();
+            FilterDuplicateLocations( ncoaHistoryList );
 
-            if ( trueNcoaReturnRecords != null && trueNcoaReturnRecords.Count != 0 )
+            if (trueNcoaReturnRecords != null && trueNcoaReturnRecords.Count != 0)
             {
-                var ncoaHistoryList = trueNcoaReturnRecords.Select( r => r.ToNcoaHistory() );
-                using ( var rockContext = new RockContext() )
+
+                using (var rockContext = new RockContext())
                 {
                     var ncoaHistoryService = new NcoaHistoryService( rockContext );
                     ncoaHistoryService.AddRange( ncoaHistoryList );
@@ -289,7 +291,7 @@ namespace Rock.Utility
             ProcessNcoaResults( sparkDataConfig );
 
             sparkDataApi.NcoaCompleteReport( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.FileName, sparkDataConfig.NcoaSettings.CurrentReportExportKey );
-            
+
             //Notify group
             SentNotification( sparkDataConfig, "finished" );
         }
@@ -300,12 +302,12 @@ namespace Rock.Utility
         /// <param name="sparkDataConfig">The spark data configuration.</param>
         public void ProcessNcoaResults( SparkDataConfig sparkDataConfig = null )
         {
-            if ( sparkDataConfig == null )
+            if (sparkDataConfig == null)
             {
                 sparkDataConfig = GetSettings();
             }
 
-            if ( sparkDataConfig.NcoaSettings.InactiveRecordReasonId == null )
+            if (sparkDataConfig.NcoaSettings.InactiveRecordReasonId == null)
             {
                 throw new NullReferenceException( "Inactive Record Reason value is empty." );
             }
@@ -328,6 +330,73 @@ namespace Rock.Utility
         #endregion
 
         #region Process NCOA results
+
+        /// <summary>
+        /// Marks the duplicate locations as ManualUpdateRequired so that they are not processed.
+        /// </summary>
+        /// <param name="ncoaHistoryList">The NCOA history list.</param>
+        private void FilterDuplicateLocations( List<NcoaHistory> ncoaHistoryList )
+        {
+            // Get all duplicate addresses/locations and sort the result by move date descending.
+            var duplicateLocations = ncoaHistoryList.OrderByDescending( x => x.MoveDate ).GroupBy( x => x.PersonAliasId + "_" + x.FamilyId + "_" + x.LocationId )
+          .Where( g => g.Count() > 1 )
+          .ToList();
+
+            // Find the latest valid move address
+            foreach (var duplicateLocationsGroup in duplicateLocations)
+            {
+                bool foundLocation = false;
+                foreach (var location in duplicateLocationsGroup)
+                {
+                    if (!foundLocation)
+                    {
+                        if (location.MoveType != MoveType.None && location.AddressStatus == AddressStatus.Valid)
+                        {
+                            foundLocation = true;
+                            location.Processed = Processed.NotProcessed;
+                        }
+                        else
+                        {
+                            location.Processed = Processed.ManualUpdateRequired;
+                        }
+                    }
+                    else
+                    {
+                        location.Processed = Processed.ManualUpdateRequired;
+                    }
+                }
+
+                // If there is no valid move address, find latest valid address
+                if (!foundLocation)
+                {
+                    foreach (var location in duplicateLocationsGroup)
+                    {
+                        if (!foundLocation)
+                        {
+                            if (location.AddressStatus == AddressStatus.Valid)
+                            {
+                                foundLocation = true;
+                                location.Processed = Processed.NotProcessed;
+                            }
+                            else
+                            {
+                                location.Processed = Processed.ManualUpdateRequired;
+                            }
+                        }
+                        else
+                        {
+                            location.Processed = Processed.ManualUpdateRequired;
+                        }
+                    }
+                }
+
+                // If there is no valid address, use the latest address
+                if (!foundLocation)
+                {
+                    duplicateLocationsGroup.First().Processed = Processed.NotProcessed;
+                }
+            }
+        }
 
         /// <summary>
         /// Processes the NCOA History results.
@@ -362,7 +431,7 @@ namespace Rock.Utility
         private void ProcessNcoaResultsInvalidAddress( DefinedValueCache inactiveReason, bool markInvalidAsPrevious, bool mark48MonthAsPrevious, decimal? minMoveDistance, int? homeValueId, int? previousValueId )
         {
             List<int> ncoaIds = null;
-            using ( var rockContext = new RockContext() )
+            using (var rockContext = new RockContext())
             {
                 ncoaIds = new NcoaHistoryService( rockContext )
                     .Queryable().AsNoTracking()
@@ -373,12 +442,12 @@ namespace Rock.Utility
                     .ToList();
             }
 
-            foreach ( int id in ncoaIds )
+            foreach (int id in ncoaIds)
             {
-                using ( var rockContext = new RockContext() )
+                using (var rockContext = new RockContext())
                 {
                     var ncoaHistory = new NcoaHistoryService( rockContext ).Get( id );
-                    if ( ncoaHistory != null )
+                    if (ncoaHistory != null)
                     {
                         var groupService = new GroupService( rockContext );
                         var groupLocationService = new GroupLocationService( rockContext );
@@ -387,17 +456,17 @@ namespace Rock.Utility
 
                         // If configured to mark these as previous, and we're able to mark it as previous set the status to 'Complete'
                         // otherwise set it to require a manual update
-                        if ( markInvalidAsPrevious && MarkAsPreviousLocation( ncoaHistory, groupLocationService, previousValueId, changes ) )
+                        if (markInvalidAsPrevious && MarkAsPreviousLocation( ncoaHistory, groupLocationService, previousValueId, changes ))
                         {
                             ncoaHistory.Processed = Processed.Complete;
 
                             // If there were any changes, write to history
-                            if ( changes.Any() )
+                            if (changes.Any())
                             {
                                 var family = groupService.Get( ncoaHistory.FamilyId );
-                                if ( family != null )
+                                if (family != null)
                                 {
-                                    foreach ( var fm in family.Members )
+                                    foreach (var fm in family.Members)
                                     {
                                         HistoryService.SaveChanges(
                                             rockContext,
@@ -437,7 +506,7 @@ namespace Rock.Utility
         {
             List<int> ncoaIds = null;
             // Process the '48 Month Move' NCOA Types
-            using ( var rockContext = new RockContext() )
+            using (var rockContext = new RockContext())
             {
                 ncoaIds = new NcoaHistoryService( rockContext )
                     .Queryable().AsNoTracking()
@@ -448,12 +517,12 @@ namespace Rock.Utility
                     .ToList();
             }
 
-            foreach ( int id in ncoaIds )
+            foreach (int id in ncoaIds)
             {
-                using ( var rockContext = new RockContext() )
+                using (var rockContext = new RockContext())
                 {
                     var ncoaHistory = new NcoaHistoryService( rockContext ).Get( id );
-                    if ( ncoaHistory != null )
+                    if (ncoaHistory != null)
                     {
                         var groupService = new GroupService( rockContext );
                         var groupLocationService = new GroupLocationService( rockContext );
@@ -462,17 +531,17 @@ namespace Rock.Utility
 
                         // If configured to mark these as previous, and we're able to mark it as previous set the status to 'Complete'
                         // otherwise set it to require a manual update
-                        if ( mark48MonthAsPrevious && MarkAsPreviousLocation( ncoaHistory, groupLocationService, previousValueId, changes ) )
+                        if (mark48MonthAsPrevious && MarkAsPreviousLocation( ncoaHistory, groupLocationService, previousValueId, changes ))
                         {
                             ncoaHistory.Processed = Processed.Complete;
 
                             // If there were any changes, write to history
-                            if ( changes.Any() )
+                            if (changes.Any())
                             {
                                 var family = groupService.Get( ncoaHistory.FamilyId );
-                                if ( family != null )
+                                if (family != null)
                                 {
-                                    foreach ( var fm in family.Members )
+                                    foreach (var fm in family.Members)
                                     {
                                         HistoryService.SaveChanges(
                                             rockContext,
@@ -513,7 +582,7 @@ namespace Rock.Utility
         {
             List<int> ncoaIds = null;
             // Process 'Move' NCOA Types (The 'Family' move types will be processed first)
-            using ( var rockContext = new RockContext() )
+            using (var rockContext = new RockContext())
             {
                 ncoaIds = new NcoaHistoryService( rockContext )
                     .Queryable().AsNoTracking()
@@ -525,13 +594,13 @@ namespace Rock.Utility
                     .ToList();
             }
 
-            foreach ( int id in ncoaIds )
+            foreach (int id in ncoaIds)
             {
-                using ( var rockContext = new RockContext() )
+                using (var rockContext = new RockContext())
                 {
                     // Get the NCOA record and make sure it still hasn't been processed
                     var ncoaHistory = new NcoaHistoryService( rockContext ).Get( id );
-                    if ( ncoaHistory != null && ncoaHistory.Processed == Processed.NotProcessed )
+                    if (ncoaHistory != null && ncoaHistory.Processed == Processed.NotProcessed)
                     {
                         var ncoaHistoryService = new NcoaHistoryService( rockContext );
                         var groupService = new GroupService( rockContext );
@@ -542,41 +611,41 @@ namespace Rock.Utility
                         var familyChanges = new History.HistoryChangeList();
 
                         // If we're able to mark the existing address as previous and successfully create a new home address..
-                        if ( MarkAsPreviousLocation( ncoaHistory, groupLocationService, previousValueId, familyChanges ) &&
-                            AddNewHomeLocation( ncoaHistory, locationService, groupLocationService, homeValueId, familyChanges ) )
+                        if (MarkAsPreviousLocation( ncoaHistory, groupLocationService, previousValueId, familyChanges ) &&
+                            AddNewHomeLocation( ncoaHistory, locationService, groupLocationService, homeValueId, familyChanges ))
                         {
                             // set the status to 'Complete'
                             ncoaHistory.Processed = Processed.Complete;
 
                             // Look for any other moves for the same family and to same address, and set their status to complete as well
-                            foreach ( var ncoaIndividual in ncoaHistoryService
+                            foreach (var ncoaIndividual in ncoaHistoryService
                                 .Queryable().Where( n =>
                                     n.Processed == Processed.NotProcessed &&
                                     n.NcoaType == NcoaType.Move &&
                                     n.FamilyId == ncoaHistory.FamilyId &&
                                     n.Id != ncoaHistory.Id &&
-                                    n.UpdatedStreet1 == ncoaHistory.UpdatedStreet1 ) )
+                                    n.UpdatedStreet1 == ncoaHistory.UpdatedStreet1 ))
                             {
                                 ncoaIndividual.Processed = Processed.Complete;
                             }
 
                             // If there were any changes, write to history and check to see if person should be inactivated
-                            if ( familyChanges.Any() )
+                            if (familyChanges.Any())
                             {
                                 var family = groupService.Get( ncoaHistory.FamilyId );
-                                if ( family != null )
+                                if (family != null)
                                 {
-                                    foreach ( var fm in family.Members )
+                                    foreach (var fm in family.Members)
                                     {
-                                        if ( ncoaHistory.MoveDistance.HasValue && minMoveDistance.HasValue &&
-                                            ncoaHistory.MoveDistance.Value >= minMoveDistance.Value )
+                                        if (ncoaHistory.MoveDistance.HasValue && minMoveDistance.HasValue &&
+                                            ncoaHistory.MoveDistance.Value >= minMoveDistance.Value)
                                         {
                                             History.HistoryChangeList personChanges;
 
                                             personService.InactivatePerson( fm.Person, inactiveReason,
                                                 $"Received a Change of Address (NCOA) notice that was for more than {minMoveDistance} miles away.", out personChanges );
 
-                                            if ( personChanges.Any() )
+                                            if (personChanges.Any())
                                             {
                                                 HistoryService.SaveChanges(
                                                     rockContext,
@@ -626,7 +695,7 @@ namespace Rock.Utility
         {
             List<int> ncoaIds = null;
             // Process 'Move' NCOA Types (For the remaining Individual move types that weren't updated with the family move)
-            using ( var rockContext = new RockContext() )
+            using (var rockContext = new RockContext())
             {
                 ncoaIds = new NcoaHistoryService( rockContext )
                     .Queryable().AsNoTracking()
@@ -638,13 +707,13 @@ namespace Rock.Utility
                     .ToList();
             }
 
-            foreach ( int id in ncoaIds )
+            foreach (int id in ncoaIds)
             {
-                using ( var rockContext = new RockContext() )
+                using (var rockContext = new RockContext())
                 {
                     // Get the NCOA record and make sure it still hasn't been processed
                     var ncoaHistory = new NcoaHistoryService( rockContext ).Get( id );
-                    if ( ncoaHistory != null && ncoaHistory.Processed == Processed.NotProcessed )
+                    if (ncoaHistory != null && ncoaHistory.Processed == Processed.NotProcessed)
                     {
                         var ncoaHistoryService = new NcoaHistoryService( rockContext );
                         var groupMemberService = new GroupMemberService( rockContext );
@@ -663,45 +732,45 @@ namespace Rock.Utility
                         var family = groupService.Get( ncoaHistory.FamilyId );
 
                         // If there's only one person in the family
-                        if ( family.Members.Count == 1 )
+                        if (family.Members.Count == 1)
                         {
                             // And that person is the same as the move record's person then we can process it.
                             var personAlias = personAliasService.Get( ncoaHistory.PersonAliasId );
                             var familyMember = family.Members.First();
-                            if ( personAlias != null && familyMember.PersonId == personAlias.PersonId )
+                            if (personAlias != null && familyMember.PersonId == personAlias.PersonId)
                             {
                                 // If were able to mark their existing address as previous and add a new updated Home address, 
                                 // then set the status to complete (otherwise leave it as needing a manual update).
-                                if ( MarkAsPreviousLocation( ncoaHistory, groupLocationService, previousValueId, changes ) &&
-                                    AddNewHomeLocation( ncoaHistory, locationService, groupLocationService, homeValueId, changes ) )
+                                if (MarkAsPreviousLocation( ncoaHistory, groupLocationService, previousValueId, changes ) &&
+                                    AddNewHomeLocation( ncoaHistory, locationService, groupLocationService, homeValueId, changes ))
                                 {
                                     ncoaHistory.Processed = Processed.Complete;
 
                                     // Look for any other moves for the same person to same address, and set their process to complete also
-                                    foreach ( var ncoaIndividual in ncoaHistoryService
+                                    foreach (var ncoaIndividual in ncoaHistoryService
                                         .Queryable().Where( n =>
                                             n.Processed == Processed.NotProcessed &&
                                             n.NcoaType == NcoaType.Move &&
                                             n.MoveType == MoveType.Individual &&
                                             n.PersonAliasId == ncoaHistory.PersonAliasId &&
                                             n.Id != ncoaHistory.Id &&
-                                            n.UpdatedStreet1 == ncoaHistory.UpdatedStreet1 ) )
+                                            n.UpdatedStreet1 == ncoaHistory.UpdatedStreet1 ))
                                     {
                                         ncoaIndividual.Processed = Processed.Complete;
                                     }
 
                                     // If there were any changes, write to history and check to see if person should be inactivated
-                                    if ( changes.Any() )
+                                    if (changes.Any())
                                     {
-                                        if ( ncoaHistory.MoveDistance.HasValue && minMoveDistance.HasValue &&
-                                            ncoaHistory.MoveDistance.Value >= minMoveDistance.Value )
+                                        if (ncoaHistory.MoveDistance.HasValue && minMoveDistance.HasValue &&
+                                            ncoaHistory.MoveDistance.Value >= minMoveDistance.Value)
                                         {
                                             History.HistoryChangeList personChanges;
 
                                             personService.InactivatePerson( familyMember.Person, inactiveReason,
                                                 $"Received a Change of Address (NCOA) notice that was for more than {minMoveDistance} miles away.", out personChanges );
 
-                                            if ( personChanges.Any() )
+                                            if (personChanges.Any())
                                             {
                                                 HistoryService.SaveChanges(
                                                     rockContext,
@@ -744,7 +813,7 @@ namespace Rock.Utility
         /// <returns></returns>
         private bool MarkAsPreviousLocation( NcoaHistory ncoaHistory, GroupLocationService groupLocationService, int? previousValueId, History.HistoryChangeList changes )
         {
-            if ( ncoaHistory.LocationId.HasValue && previousValueId.HasValue )
+            if (ncoaHistory.LocationId.HasValue && previousValueId.HasValue)
             {
                 var groupLocation = groupLocationService.Queryable()
                     .Where( gl =>
@@ -752,9 +821,9 @@ namespace Rock.Utility
                         gl.LocationId == ncoaHistory.LocationId &&
                         gl.Location.Street1 == ncoaHistory.OriginalStreet1 )
                     .FirstOrDefault();
-                if ( groupLocation != null )
+                if (groupLocation != null)
                 {
-                    if ( groupLocation.GroupLocationTypeValueId != previousValueId.Value )
+                    if (groupLocation.GroupLocationTypeValueId != previousValueId.Value)
                     {
                         changes.AddChange( History.HistoryVerb.Modify, History.HistoryChangeType.Property, $"Location Type for {groupLocation.Location} " ).SetNewValue( "Previous" ).SourceOfChange = "NCOA Request";
 
@@ -770,7 +839,7 @@ namespace Rock.Utility
 
         private bool AddNewHomeLocation( NcoaHistory ncoaHistory, LocationService locationService, GroupLocationService groupLocationService, int? homeValueId, History.HistoryChangeList changes )
         {
-            if ( homeValueId.HasValue )
+            if (homeValueId.HasValue)
             {
                 var location = locationService.Get(
                     ncoaHistory.UpdatedStreet1,
@@ -803,19 +872,19 @@ namespace Rock.Utility
         /// <param name="sparkDataConfig">The spark data configuration.</param>
         public void SentNotification( SparkDataConfig sparkDataConfig, string status )
         {
-            if ( !sparkDataConfig.GlobalNotificationApplicationGroupId.HasValue || sparkDataConfig.GlobalNotificationApplicationGroupId.Value == 0 )
+            if (!sparkDataConfig.GlobalNotificationApplicationGroupId.HasValue || sparkDataConfig.GlobalNotificationApplicationGroupId.Value == 0)
             {
                 return;
             }
 
             var recipients = new List<RecipientData>();
-            using ( RockContext rockContext = new RockContext() )
+            using (RockContext rockContext = new RockContext())
             {
                 Group group = new GroupService( rockContext ).GetNoTracking( sparkDataConfig.GlobalNotificationApplicationGroupId.Value );
 
-                foreach ( var groupMember in group.Members )
+                foreach (var groupMember in group.Members)
                 {
-                    if ( groupMember.GroupMemberStatus == GroupMemberStatus.Active )
+                    if (groupMember.GroupMemberStatus == GroupMemberStatus.Active)
                     {
                         var mergeFields = Rock.Lava.LavaHelper.GetCommonMergeFields( null );
                         mergeFields.Add( "Person", groupMember.Person );
@@ -845,18 +914,18 @@ namespace Rock.Utility
         public static SparkDataConfig GetSettings( SparkDataConfig sparkDataConfig = null )
         {
             // Get Spark Data settings
-            if ( sparkDataConfig == null )
+            if (sparkDataConfig == null)
             {
                 sparkDataConfig = Rock.Web.SystemSettings.GetValue( SystemSetting.SPARK_DATA ).FromJsonOrNull<SparkDataConfig>() ?? new SparkDataConfig();
             }
 
 
-            if ( sparkDataConfig.NcoaSettings == null )
+            if (sparkDataConfig.NcoaSettings == null)
             {
                 sparkDataConfig.NcoaSettings = new NcoaSettings();
             }
 
-            if ( sparkDataConfig.Messages == null )
+            if (sparkDataConfig.Messages == null)
             {
                 sparkDataConfig.Messages = new Extension.FixedSizeList<string>( 30 );
             }
