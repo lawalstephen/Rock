@@ -69,7 +69,7 @@ namespace Rock.Utility.NcoaApi
             {
                 // submit for exporting
                 var request = new RestRequest( $"api/files/{fileName}/index", Method.POST );
-                request.AddParameter( "application/x-www-form-urlencoded", $"caption={companyName}", ParameterType.RequestBody );
+                request.AddParameter( "application/x-www-form-urlencoded", $"caption={Uri.EscapeDataString(companyName)}", ParameterType.RequestBody );
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {

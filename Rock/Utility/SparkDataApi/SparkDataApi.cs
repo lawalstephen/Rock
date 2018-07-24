@@ -132,19 +132,14 @@ namespace Rock.Utility.SparkDataApi
             try
             {
                 string url;
-                if ( personFullName.IsNotNullOrWhiteSpace() )
-                {
-                    url = $"api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords ?? 0}/{personFullName}";
-                }
-                else
-                {
-                    url = $"api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords ?? 0}";
-                }
+                url = $"api/SparkData/Ncoa/IntiateReport/{sparkDataApiKey}/{numberRecords ?? 0}";
 
                 var request = new RestRequest( url, Method.POST )
                 {
                     RequestFormat = DataFormat.Json
                 };
+
+                request.AddHeader( "personFullName", personFullName.ToStringSafe() );
 
                 var response = _client.Post<GroupNameTransactionKey>( request );
                 if ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Accepted )
