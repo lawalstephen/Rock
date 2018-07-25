@@ -212,7 +212,16 @@ namespace Rock.Model
 
             // Create dictionary
             var foundPeople = query
-                .Select( p => new PersonSummary( p ) )
+                .Select( p => new PersonSummary()
+                {
+                    Id = p.Id,
+                    FirstName = p.FirstName,
+                    NickName = p.NickName,
+                    Gender = p.Gender,
+                    DateOfBirth = p.BirthDate,
+                    SuffixValueId = p.SuffixValueId
+                } )
+                .ToList()
                 .ToDictionary(
                     p => p.Id,
                     p => {
@@ -235,7 +244,15 @@ namespace Rock.Model
                         // Is this query performant? 
                         previousEmailQry.Any( a => a.PersonAlias.PersonId == p.Id && a.SearchValue == searchParameters.Email )
                     )
-                    .Select( p => new PersonSummary( p ) )
+                    .Select( p => new PersonSummary()
+                    {
+                        Id = p.Id,
+                        FirstName = p.FirstName,
+                        NickName = p.NickName,
+                        Gender = p.Gender,
+                        DateOfBirth = p.BirthDate,
+                        SuffixValueId = p.SuffixValueId
+                    } )
                     .ToList()
                     .ForEach( p =>
                     {
@@ -260,7 +277,15 @@ namespace Rock.Model
             previousNameService.Queryable( "PersonAlias.Person" )
                 .AsNoTracking()
                 .Where( n => n.LastName == searchParameters.LastName )
-                .Select( n => new PersonSummary( n.PersonAlias.Person ) )
+                .Select( n => new PersonSummary()
+                {
+                    Id = n.PersonAlias.Person.Id,
+                    FirstName = n.PersonAlias.Person.FirstName,
+                    NickName = n.PersonAlias.Person.NickName,
+                    Gender = n.PersonAlias.Person.Gender,
+                    DateOfBirth = n.PersonAlias.Person.BirthDate,
+                    SuffixValueId = n.PersonAlias.Person.SuffixValueId
+                } )
                 .ToList()
                 .ForEach( p =>
                 {
@@ -284,7 +309,15 @@ namespace Rock.Model
                 phoneNumberService.Queryable( "Person" )
                     .AsNoTracking()
                     .Where( n => n.Number == searchParameters.MobilePhone )
-                    .Select( n => new PersonSummary( n.Person ) )
+                    .Select( n => new PersonSummary()
+                    {
+                        Id = n.Person.Id,
+                        FirstName = n.Person.FirstName,
+                        NickName = n.Person.NickName,
+                        Gender = n.Person.Gender,
+                        DateOfBirth = n.Person.BirthDate,
+                        SuffixValueId = n.Person.SuffixValueId
+                    } )
                     .ToList()
                     .ForEach( p =>
                     {
@@ -351,6 +384,7 @@ namespace Rock.Model
 
             public PersonMatchResult( PersonMatchQuery query, PersonSummary person )
             {
+                PersonId = person.Id;
                 FirstNameMatched = ( person.FirstName != null && person.FirstName != String.Empty && person.FirstName == query.FirstName ) || ( person.NickName != null && person.NickName != String.Empty && person.NickName == query.FirstName );
                 SuffixMatched = query.SuffixValueId.HasValue && person.SuffixValueId != null && query.SuffixValueId == person.SuffixValueId;
                 GenderMatched = query.Gender.HasValue & query.Gender == person.Gender;
@@ -435,27 +469,16 @@ namespace Rock.Model
         /// </summary>
         private class PersonSummary
         {
+            public int Id { get; set; }
+            public string FirstName { get; set; }
 
-            public PersonSummary( Person person )
-            {
-                Id = person.Id;
-                FirstName = person.FirstName;
-                NickName = person.NickName;
-                Gender = person.Gender;
-                DateOfBirth = person.BirthDate;
-                SuffixValueId = person.SuffixValueId;
-            }
+            public string NickName { get; set; }
 
-            public int Id { get; }
-            public string FirstName { get; }
+            public Gender Gender { get; set; }
 
-            public string NickName { get; }
+            public DateTime? DateOfBirth { get; set; }
 
-            public Gender Gender { get; }
-
-            public DateTime? DateOfBirth { get; }
-
-            public int? SuffixValueId { get; }
+            public int? SuffixValueId { get; set; }
         }
 
         #endregion
@@ -487,22 +510,16 @@ namespace Rock.Model
         public Person FindPerson( PersonMatchQuery personMatchQuery, bool updatePrimaryEmail, bool includeDeceased = false, bool includeBusinesses = false )
         {
             var matches = this.FindPersons( personMatchQuery, includeDeceased, includeBusinesses ).ToList();
-
-            // We're looking for a single exact match
-            if ( matches.Count != 1 )
-            {
-                return null;
-            }
-
-            var exactMatch = matches.First();
+            
+            var match = matches.FirstOrDefault();
 
             // Check if we care about updating the person's primary email
-            if ( !updatePrimaryEmail )
+            if (updatePrimaryEmail && match != null)
             {
-                return exactMatch;
+                return UpdatePrimaryEmail( personMatchQuery.Email, match );
             }
 
-            return UpdatePrimaryEmail( personMatchQuery.Email, exactMatch );
+            return match;
         }
 
         /// <summary>
