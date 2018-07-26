@@ -196,7 +196,7 @@ namespace Rock.Utility
                 return;
             }
 
-            GroupNameTransactionKey groupNameTransactionKey = sparkDataApi.NcoaIntiateReport( sparkDataConfig.SparkDataApiKey, addresses.Count, sparkDataConfig.NcoaSettings.PersonFullName );
+            GroupNameTransactionKey groupNameTransactionKey = sparkDataApi.NcoaInitiateReport( sparkDataConfig.SparkDataApiKey, addresses.Count, sparkDataConfig.NcoaSettings.PersonFullName );
             sparkDataConfig.NcoaSettings.FileName = groupNameTransactionKey.TransactionKey;
             var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
             var trueNcoaApi = new TrueNcoaApi( credentials );
