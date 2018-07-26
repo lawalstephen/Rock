@@ -19,8 +19,7 @@
         <div class="panel panel-block">
             <div class="panel-heading">
                 <h1 class="panel-title">
-                    <i class="fa fa-exclamation"></i>
-                    Spark Data
+                    <i class="fa fa-certificate "></i> Spark Data
                 </h1>
             </div>
             <div class="panel-body">
@@ -34,17 +33,16 @@
                             <div class="col-md-12">
                                 <div class="row">
                                     <div class="col-md-2">
-                                        <img src="/GetImage.ashx?guid=a4654bac-937c-4912-82af-1eb66fed9efe" class="img-responsive" alt="Spark Data">
+                                        <img src='<%= ResolveRockUrl( "~/Blocks/Administration/Assets/spark.png") %>' class="img-responsive" alt="Spark Data" />
                                     </div>
                                     <div class="col-md-10">
-                                        <div class="row">
-                                            <h1>Enhance Your Data</h1>
+                                        <h1>Enhance Your Data</h1>
                                             
-                                            <p> Spark Data is a set of services that allows you to easily clean and enhance your data with
-                                            little effort. Before you can begin you'll need to get an API key from the Rock RMS website
-                                            and ensure that a credit card is on file for use with paid services.</p>
-                                            <p><a href="https://www.rockrms.com/">Sign-up Now</a></p>
-                                        </div>
+                                        <p> Spark Data is a set of services that allows you to easily clean and enhance your data with
+                                        little effort. Before you can begin you'll need to get an API key from the Rock RMS website
+                                        and ensure that a credit card is on file for use with paid services.</p>
+                                        <p><a href="https://www.rockrms.com/sparkdatalink">Sign-up Now</a></p>
+
                                         <asp:ValidationSummary ID="vsSignIn" runat="server" HeaderText="Please Correct the Following" ValidationGroup="SignInValidationGroup" CssClass="alert alert-validation" />
                                         <div class="row">
                                             <div class="col-md-6">
