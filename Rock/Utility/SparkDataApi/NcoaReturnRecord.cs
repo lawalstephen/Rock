@@ -18,12 +18,12 @@ using System;
 using Newtonsoft.Json;
 using Rock.Model;
 
-namespace Rock.Utility.NcoaApi
+namespace Rock.Utility.SparkDataApi
 {
     /// <summary>
-    /// The record that TrueNCOA returns.
+    /// The record that NCOA server returns.
     /// </summary>
-    public class TrueNcoaReturnRecord
+    public class NcoaReturnRecord
     {
         /// <summary>
         /// Gets or sets the NCOA run date time.
@@ -333,7 +333,7 @@ namespace Rock.Utility.NcoaApi
         public string CheckDigit { get; set; }
 
         /// <summary>
-        /// Gets or sets the delivery point verification. Refer to Delivery Point Verification Codes Table in the TrueNCOA Data Dictionary document
+        /// Gets or sets the delivery point verification. Refer to Delivery Point Verification Codes Table in the NCOA Data Dictionary document
         /// </summary>
         /// <value>
         /// The delivery point verification.
@@ -848,7 +848,7 @@ namespace Rock.Utility.NcoaApi
         }
 
         /// <summary>
-        /// Convert TrueNCOA return record to NcoaHistory.
+        /// Convert NCOA return record to NcoaHistory.
         /// </summary>
         /// <returns>NcoaHistory</returns>
         public NcoaHistory ToNcoaHistory()

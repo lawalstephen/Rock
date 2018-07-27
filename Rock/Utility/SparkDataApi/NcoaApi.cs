@@ -26,24 +26,24 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 
-namespace Rock.Utility.NcoaApi
+namespace Rock.Utility.SparkDataApi
 {
     /// <summary>
-    /// TrueNCOA API calls
+    /// NCOA API calls
     /// </summary>
-    public class TrueNcoaApi
+    public class NcoaApi
     {
-        private string TRUE_NCOA_SERVER = "https://app.testing.truencoa.com"; // "https://app.truencoa.com/api/";
+        private string NCOA_SERVER = "https://app.testing.truencoa.com"; // "https://app.truencoa.com/api/";
         private int _batchsize = 150;
         private string _username;
         private string _password;
         private RestClient _client = null;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TrueNcoaApi"/> class.
+        /// Initializes a new instance of the <see cref="NcoaApi"/> class.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        public TrueNcoaApi( UsernamePassword usernamePassword )
+        public NcoaApi( UsernamePassword usernamePassword )
         {
             _username = usernamePassword.UserName;
             _password = usernamePassword.Password;
@@ -55,13 +55,18 @@ namespace Rock.Utility.NcoaApi
         /// </summary>
         private void CreateRestClient()
         {
-            _client = new RestClient( TRUE_NCOA_SERVER );
+            _client = new RestClient( NCOA_SERVER );
             _client.AddDefaultHeader( "user_name", _username );
             _client.AddDefaultHeader( "password", _password );
             _client.AddDefaultHeader( "Content-Type", "application/x-www-form-urlencoded" );
         }
 
-
+        /// <summary>
+        /// Creates the NCOA file on the NCOA server.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        /// <param name="companyName">Name of the company.</param>
+        /// <param name="id">The identifier.</param>
         public void CreateFile( string fileName, string companyName, out string id )
         {
             id = null;
@@ -81,17 +86,17 @@ namespace Rock.Utility.NcoaApi
 
                 try
                 {
-                    TrueNcoaResponse file = JsonConvert.DeserializeObject<TrueNcoaResponse>( response.Content );
+                    NcoaResponse file = JsonConvert.DeserializeObject<NcoaResponse>( response.Content );
                     id = file.Id;
                 }
                 catch
                 {
-                    throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
+                    throw new Exception( $"Failed to deserialize NCOA response: {response.Content}" );
                 }
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Error creating TrueNCOA file", ex );
+                throw new AggregateException( "Communication with NCOA server failed: Could not create address file on the NCOA server that is required to begin processing. Possible cause is the NCOA API server is down.", ex );
             }
         }
 
@@ -143,13 +148,12 @@ namespace Rock.Utility.NcoaApi
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Could not upload address to TrueNCOA", ex );
+                throw new AggregateException( "Communication with NCOA server failed: Could not upload addresses to the NCOA server. Possible cause is one or more addresses are not in a valid format or invalid state code.", ex );
             }
 
             try
             {
                 var request = new RestRequest( $"api/files/{id}/index", Method.GET );
-                request.AddParameter( "application/x-www-form-urlencoded", "status=submit", ParameterType.RequestBody );
                 IRestResponse response = _client.Execute( request );
                 if ( response.StatusCode != HttpStatusCode.OK )
                 {
@@ -159,24 +163,24 @@ namespace Rock.Utility.NcoaApi
                     } );
                 }
 
-                TrueNcoaResponse file;
+                NcoaResponse file;
                 try
                 {
-                    file = JsonConvert.DeserializeObject<TrueNcoaResponse>( response.Content );
+                    file = JsonConvert.DeserializeObject<NcoaResponse>( response.Content );
                 }
                 catch
                 {
-                    throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
+                    throw new Exception( $"Failed to deserialize NCOA response: {response.Content}" );
                 }
 
                 if ( file.Status != "Mapped" )
                 {
-                    throw new Exception( $"TrueNCOA is not in the correct state: {file.Status}" );
+                    throw new Exception( $"NCOA is not in the correct state: {file.Status}" );
                 }
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Could not upload address to TrueNCOA", ex );
+                throw new AggregateException( "Communication with NCOA server failed: Could not check upload status. Possible causes are one or more addresses are not in a valid format or invalid state code; or server is in invalid state.", ex );
             }
         }
 
@@ -202,7 +206,7 @@ namespace Rock.Utility.NcoaApi
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Could create report on TrueNCOA", ex );
+                throw new AggregateException( "Communication with NCOA server failed: Could not create report. Possible causes are one or more addresses are not in a valid format or invalid state code; or server is in invalid state.", ex );
             }
         }
 
@@ -227,26 +231,26 @@ namespace Rock.Utility.NcoaApi
                     } );
                 }
 
-                TrueNcoaResponse file;
+                NcoaResponse file;
                 try
                 {
-                    file = JsonConvert.DeserializeObject<TrueNcoaResponse>( response.Content );
+                    file = JsonConvert.DeserializeObject<NcoaResponse>( response.Content );
                 }
                 catch
                 {
-                    throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
+                    throw new Exception( $"Failed to deserialize NCOA response: {response.Content}" );
                 }
 
                 if ( file.Status == "Errored" )
                 {
-                    throw new Exception( "TrueNCOA returned an error creating the report" );
+                    throw new Exception( "NCOA returned an error creating the report" );
                 }
 
                 return file.Status == "Processed";
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Error checking if report is created by TrueNCOA", ex );
+                throw new AggregateException( "Communication with NCOA server failed: Could not check if report was created. Possible cause is the NCOA API server is down.", ex );
             }
         }
 
@@ -274,17 +278,17 @@ namespace Rock.Utility.NcoaApi
 
                 try
                 {
-                    TrueNcoaResponse file = JsonConvert.DeserializeObject<TrueNcoaResponse>( response.Content );
+                    NcoaResponse file = JsonConvert.DeserializeObject<NcoaResponse>( response.Content );
                     exportfileid = file.Id;
                 }
                 catch
                 {
-                    throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
+                    throw new Exception( $"Failed to deserialize NCOA response: {response.Content}" );
                 }
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Error creating TrueNCOA report", ex );
+                throw new AggregateException( "Communication with NCOA server failed: Could not create export. Possible cause is the NCOA API server is down.", ex );
             }
         }
 
@@ -311,17 +315,17 @@ namespace Rock.Utility.NcoaApi
 
                 try
                 {
-                    TrueNcoaResponse file = JsonConvert.DeserializeObject<TrueNcoaResponse>( response.Content );
+                    NcoaResponse file = JsonConvert.DeserializeObject<NcoaResponse>( response.Content );
                     return file.Status == "Exported" || file.Status == "Processed";
                 }
                 catch
                 {
-                    throw new Exception( $"Failed to deserialize TrueNCOA response: {response.Content}" );
+                    throw new Exception( $"Failed to deserialize NCOA response: {response.Content}" );
                 }
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Error creating TrueNCOA report", ex );
+                throw new AggregateException( "Communication with NCOA server failed: Could not check if the export is created. Possible cause is the NCOA API server is down.", ex );
             }
         }
 
@@ -330,7 +334,7 @@ namespace Rock.Utility.NcoaApi
         /// </summary>
         /// <param name="exportfileid">The export file ID.</param>
         /// <param name="records">The records.</param>
-        public void DownloadExport( string exportfileid, out List<TrueNcoaReturnRecord> records )
+        public void DownloadExport( string exportfileid, out List<NcoaReturnRecord> records )
         {
             records = null;
 
@@ -353,7 +357,7 @@ namespace Rock.Utility.NcoaApi
                     obj = JObject.Parse( response.Content ).ToObject<Dictionary<string, object>>();
 
                     var recordsjson = (string)obj["Records"].ToString();
-                    records = JsonConvert.DeserializeObject<List<TrueNcoaReturnRecord>>( recordsjson, new JsonSerializerSettings
+                    records = JsonConvert.DeserializeObject<List<NcoaReturnRecord>>( recordsjson, new JsonSerializerSettings
                     {
                         MissingMemberHandling = MissingMemberHandling.Error
                     } );
@@ -364,17 +368,17 @@ namespace Rock.Utility.NcoaApi
                 {
                     if ( obj != null && obj.ContainsKey( "error" ) )
                     {
-                        throw new AggregateException( $"TrueNCOA error response: {obj["error"]}", ex );
+                        throw new AggregateException( $"NCOA error response: {obj["error"]}", ex );
                     }
                     else
                     {
-                        throw new AggregateException( $"Failed to deserialize TrueNCOA response: {response.Content}", ex );
+                        throw new AggregateException( $"Failed to deserialize NCOA response: {response.Content}", ex );
                     }
                 }
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Error creating TrueNCOA report", ex );
+                throw new AggregateException( "Communication with NCOA server failed: Could not download export. Possible cause is the NCOA API server is down.", ex );
             }
         }
 
@@ -383,7 +387,7 @@ namespace Rock.Utility.NcoaApi
         /// </summary>
         /// <param name="records">The records.</param>
         /// <param name="fileName">Name of the file.</param>
-        public void SaveRecords( List<TrueNcoaReturnRecord> records, string fileName )
+        public void SaveRecords( List<NcoaReturnRecord> records, string fileName )
         {
             DataTable dtRecords = null;
             string recordsjson = JsonConvert.SerializeObject( records );

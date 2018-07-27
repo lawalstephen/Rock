@@ -53,7 +53,7 @@ namespace Rock.Jobs
         /// </summary>
         public virtual void Execute( IJobExecutionContext context )
         {
-            var exceptions = new List<Exception>();
+            Exception exception = null;
             // Get the job setting(s)
             JobDataMap dataMap = context.JobDetail.JobDataMap;
             SparkDataConfig sparkDataConfig = Ncoa.GetSettings();
@@ -68,7 +68,7 @@ namespace Rock.Jobs
                 Guid? SparkDataApiKeyGuid = sparkDataConfig.SparkDataApiKey.AsGuidOrNull();
                 if ( SparkDataApiKeyGuid == null )
                 {
-                    exceptions.Add( new Exception( $"SparkDataApiKey '{sparkDataConfig.SparkDataApiKey.ToStringSafe()}' is empty or invalid." ) );
+                    exception = new Exception( $"Spark Data Api Key '{sparkDataConfig.SparkDataApiKey.ToStringSafe()}' is empty or invalid. The Spark Data Api Key can be configured in System Settings > Spark Data Settings." );
                     return;
                 }
 
@@ -93,18 +93,18 @@ namespace Rock.Jobs
                         break;
                 }
             }
-            catch ( System.Exception ex )
+            catch ( Exception ex )
             {
-                exceptions.Add( ex );
+                exception = ex;
             }
             finally
             {
-                if ( exceptions.Any() )
+                if ( exception != null )
                 {
-                    context.Result = $"Job finished with error(s).";
+                    context.Result = $"NCOA Job failed: {exception.Message}";
 
                     sparkDataConfig.NcoaSettings.CurrentReportStatus = "Failed";
-                    sparkDataConfig.Messages.Add( $"NOCA Job Failed: {RockDateTime.Now.ToString()}" );
+                    sparkDataConfig.Messages.Add( $"NOCA job failed: {RockDateTime.Now.ToString()} - {exception.Message}" );
                     Ncoa.SaveSettings( sparkDataConfig );
 
                     if ( sparkDataConfig.SparkDataApiKey.IsNotNullOrWhiteSpace() && sparkDataConfig.NcoaSettings.FileName.IsNotNullOrWhiteSpace() )
@@ -113,7 +113,7 @@ namespace Rock.Jobs
                         sparkDataApi.NcoaCompleteFailed( sparkDataConfig.SparkDataApiKey, sparkDataConfig.NcoaSettings.FileName );
                     }
 
-                    Exception ex = new AggregateException( "One or more NCOA requirement failed.", exceptions );
+                    Exception ex = new AggregateException( "NCOA job failed.", exception );
                     HttpContext context2 = HttpContext.Current;
                     ExceptionLogService.LogException( ex, context2 );
                     throw ex;
@@ -126,12 +126,12 @@ namespace Rock.Jobs
                         using ( RockContext rockContext = new RockContext() )
                         {
                             NcoaHistoryService ncoaHistoryService = new NcoaHistoryService( rockContext );
-                            msg = $"NCOA Complete: {ncoaHistoryService.Count()} addresses processed, {ncoaHistoryService.MovedCount()} were marked as 'moved'";
+                            msg = $"NCOA request processed, {ncoaHistoryService.Count()} {(ncoaHistoryService.Count() == 1 ? "address" : "addresses")} processed, {ncoaHistoryService.MovedCount()} {(ncoaHistoryService.MovedCount() > 1 ? "were" : "was")} marked as 'moved'";
                         }
                     }
                     else
                     {
-                        msg = $"Job Complete. NCOA Status: {sparkDataConfig.NcoaSettings.CurrentReportStatus}";
+                        msg = $"Job complete. NCOA status: {sparkDataConfig.NcoaSettings.CurrentReportStatus}";
                     }
 
                     context.Result = msg;

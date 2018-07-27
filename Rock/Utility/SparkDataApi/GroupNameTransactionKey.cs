@@ -14,43 +14,28 @@
 // limitations under the License.
 // </copyright>
 //
-namespace Rock.Utility.NcoaApi
+
+namespace Rock.Utility.SparkDataApi
 {
     /// <summary>
-    /// The TrueNCOA Response
+    /// Group name and transaction key structure
     /// </summary>
-    internal class TrueNcoaResponse
+    public class GroupNameTransactionKey
     {
         /// <summary>
-        /// Gets or sets the TrueNCOA file name.
+        /// Gets or sets the group name.
         /// </summary>
         /// <value>
-        /// The  TrueNCOA file name.
+        /// The group name.
         /// </value>
-        public string Name { get; set; }
+        public string GroupName { get; set; }
 
         /// <summary>
-        /// Gets or sets the status.
+        /// Gets or sets the transaction key.
         /// </summary>
         /// <value>
-        /// The status.
+        /// The transaction key.
         /// </value>
-        public string Status { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the record count.
-        /// </summary>
-        /// <value>
-        /// The record count.
-        /// </value>
-        public int RecordCount { get; set; }
+        public string TransactionKey { get; set; }
     }
 }

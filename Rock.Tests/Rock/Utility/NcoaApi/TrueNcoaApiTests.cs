@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -9,7 +8,7 @@ using Xunit;
 namespace Rock.Tests.Rock.Utility.NcoaApi
 {
     /// <summary>
-    /// Test that TrueNCOA report result columns match implemented standard
+    /// Test that NCOA report result columns match implemented standard
     /// </summary>
     /// <seealso cref="System.IDisposable" />
     public class TrueNcoaApiFixture : IDisposable
@@ -20,10 +19,10 @@ namespace Rock.Tests.Rock.Utility.NcoaApi
         {
             ResponseColumns = new List<string>();
 
-            string TRUE_NCOA_SERVER = "https://app.testing.truencoa.com";
+            string NCOA_SERVER = "https://app.testing.truencoa.com";
             string exportfileid = "4c58fba3-8ee9-4644-893a-e3903ad0f91b";
 
-            var _client = new RestClient( TRUE_NCOA_SERVER );
+            var _client = new RestClient( NCOA_SERVER );
             _client.AddDefaultHeader( "user_name", "gerhard@sparkdevnetwork.org" );
             _client.AddDefaultHeader( "password", "TrueNCOA_password" );
             _client.AddDefaultHeader( "Content-Type", "application/x-www-form-urlencoded" );

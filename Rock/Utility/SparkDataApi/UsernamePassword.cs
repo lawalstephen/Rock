@@ -16,7 +16,7 @@
 //
 using Newtonsoft.Json;
 
-namespace Rock.Utility.NcoaApi
+namespace Rock.Utility.SparkDataApi
 {
     /// <summary>
     /// Username and password structure

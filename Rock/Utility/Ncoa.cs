@@ -21,14 +21,14 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web.UI.WebControls;
 using Rock;
-using Rock.Web.Cache;
 using Rock.Communication;
 using Rock.Data;
 using Rock.Model;
 using Rock.SystemKey;
-using Rock.Utility.NcoaApi;
 using Rock.Utility.Settings.SparkData;
+using Rock.Utility.SparkDataApi;
 using Rock.Web;
+using Rock.Web.Cache;
 
 namespace Rock.Utility
 {
@@ -156,7 +156,7 @@ namespace Rock.Utility
 
         #endregion
 
-        #region Executing TrueNCOA states
+        #region Executing NCOA states
         /// <summary>
         /// Starts the NCOA request.
         /// </summary>
@@ -199,7 +199,7 @@ namespace Rock.Utility
             GroupNameTransactionKey groupNameTransactionKey = sparkDataApi.NcoaInitiateReport( sparkDataConfig.SparkDataApiKey, addresses.Count, sparkDataConfig.NcoaSettings.PersonFullName );
             sparkDataConfig.NcoaSettings.FileName = groupNameTransactionKey.TransactionKey;
             var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
-            var trueNcoaApi = new TrueNcoaApi( credentials );
+            var trueNcoaApi = new NcoaApi( credentials );
 
             string id;
             trueNcoaApi.CreateFile( sparkDataConfig.NcoaSettings.FileName, groupNameTransactionKey.GroupName, out id );
@@ -234,7 +234,7 @@ namespace Rock.Utility
 
             SparkDataApi.SparkDataApi sparkDataApi = new SparkDataApi.SparkDataApi();
             var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
-            var trueNcoaApi = new TrueNcoaApi( credentials );
+            var trueNcoaApi = new NcoaApi( credentials );
             if (!trueNcoaApi.IsReportCreated( sparkDataConfig.NcoaSettings.CurrentReportKey ))
             {
                 return;
@@ -262,13 +262,13 @@ namespace Rock.Utility
             SparkDataApi.SparkDataApi sparkDataApi = new SparkDataApi.SparkDataApi();
             var credentials = sparkDataApi.NcoaGetCredentials( sparkDataConfig.SparkDataApiKey );
 
-            var trueNcoaApi = new TrueNcoaApi( credentials );
+            var trueNcoaApi = new NcoaApi( credentials );
             if (!trueNcoaApi.IsReportExportCreated( sparkDataConfig.NcoaSettings.FileName ))
             {
                 return;
             }
 
-            List<TrueNcoaReturnRecord> trueNcoaReturnRecords;
+            List<NcoaReturnRecord> trueNcoaReturnRecords;
             trueNcoaApi.DownloadExport( sparkDataConfig.NcoaSettings.CurrentReportExportKey, out trueNcoaReturnRecords );
             var ncoaHistoryList = trueNcoaReturnRecords.Select( r => r.ToNcoaHistory() ).ToList();
             FilterDuplicateLocations( ncoaHistoryList );

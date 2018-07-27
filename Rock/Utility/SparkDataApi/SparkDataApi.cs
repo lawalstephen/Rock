@@ -19,7 +19,6 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using RestSharp;
-using Rock.Utility.NcoaApi;
 using Rock.Utility.Settings.SparkData;
 
 namespace Rock.Utility.SparkDataApi
@@ -81,7 +80,7 @@ namespace Rock.Utility.SparkDataApi
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Could not authenticate Spark Data account", ex );
+                throw new AggregateException( "Communication with Spark server failed: Could not authenticate Spark Data account. Possible cause is the Spark Server API server is down.", ex );
             }
         }
 
@@ -115,7 +114,7 @@ namespace Rock.Utility.SparkDataApi
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Could not get price of service from Spark Server", ex );
+                throw new AggregateException( "Communication with Spark server failed: Could not get price of service. Possible cause is the Spark Server API server is down.", ex );
             }
         }
 
@@ -156,7 +155,7 @@ namespace Rock.Utility.SparkDataApi
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Could not initiate Spark report", ex );
+                throw new AggregateException( "Communication with Spark server failed: Could not initiate the NCOA report. Possible cause is the Spark Server API server is down.", ex );
             }
         }
 
@@ -189,7 +188,7 @@ namespace Rock.Utility.SparkDataApi
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Could not get credentials from Spark", ex );
+                throw new AggregateException( "Communication with Spark server failed: Could not get the NCOA credentials. Possible cause is the Spark Server API server is down.", ex );
             }
         }
 
@@ -225,7 +224,7 @@ namespace Rock.Utility.SparkDataApi
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Could not complete Spark report", ex );
+                throw new AggregateException( "Communication with Spark server failed: Could not set Spark report to complete. Possible cause is the Spark Server API server is down.", ex );
             }
         }
 
@@ -260,7 +259,7 @@ namespace Rock.Utility.SparkDataApi
             }
             catch ( Exception ex )
             {
-                throw new AggregateException( "Could not send Spark report failed", ex );
+                throw new AggregateException( "Communication with Spark server failed: Could not set Spark report to failed. Possible cause is the Spark Server API server is down.", ex );
             }
         }
 

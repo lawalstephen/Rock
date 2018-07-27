@@ -1553,11 +1553,11 @@
     <Compile Include="Utility\FontAwesomeHelper.cs" />
     <Compile Include="Utility\IRockOwinStartup.cs" />
     <Compile Include="Utility\Ncoa.cs" />
-    <Compile Include="Utility\NcoaApi\PersonAddressItem.cs" />
-    <Compile Include="Utility\NcoaApi\TrueNcoaApi.cs" />
-    <Compile Include="Utility\NcoaApi\TrueNcoaReturnRecord.cs" />
-    <Compile Include="Utility\NcoaApi\TrueNcoResponse.cs" />
-    <Compile Include="Utility\NcoaApi\GroupNameTransactionKey.cs" />
+    <Compile Include="Utility\SparkDataApi\PersonAddressItem.cs" />
+    <Compile Include="Utility\SparkDataApi\NcoaApi.cs" />
+    <Compile Include="Utility\SparkDataApi\NcoaReturnRecord.cs" />
+    <Compile Include="Utility\SparkDataApi\NcoaResponse.cs" />
+    <Compile Include="Utility\SparkDataApi\GroupNameTransactionKey.cs" />
     <Compile Include="Utility\SparkDataApi\UsernamePassword.cs" />
     <Compile Include="Utility\Settings\DataAutomation\InactivatePeople.cs" />
     <Compile Include="Utility\Settings\DataAutomation\InteractionItem.cs" />
