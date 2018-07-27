@@ -456,11 +456,11 @@ namespace RockWeb.Blocks.Administration
                         {
                             case SparkDataApi.AccountStatus.AccountNoName:
                                 hlAccountStatus.LabelType = LabelType.Warning;
-                                hlAccountStatus.Text = "Account does not have a Name";
+                                hlAccountStatus.Text = "Account does not have a name";
                                 break;
                             case SparkDataApi.AccountStatus.AccountNotFound:
                                 hlAccountStatus.LabelType = LabelType.Warning;
-                                hlAccountStatus.Text = "Account not Found";
+                                hlAccountStatus.Text = "Account not found";
                                 break;
                             case SparkDataApi.AccountStatus.Disabled:
                                 hlAccountStatus.LabelType = LabelType.Warning;
@@ -468,25 +468,25 @@ namespace RockWeb.Blocks.Administration
                                 break;
                             case SparkDataApi.AccountStatus.EnabledCardExpired:
                                 hlAccountStatus.LabelType = LabelType.Danger;
-                                hlAccountStatus.Text = "Enabled - Card Expired";
+                                hlAccountStatus.Text = "Enabled - Card expired";
                                 break;
                             case SparkDataApi.AccountStatus.EnabledNoCard:
                                 hlAccountStatus.LabelType = LabelType.Warning;
-                                hlAccountStatus.Text = "Enabled - No Card on File";
+                                hlAccountStatus.Text = "Enabled - No card on file";
                                 nbNcoaCreditCard.Visible = true;
                                 break;
                             case SparkDataApi.AccountStatus.EnabledCard:
                                 hlAccountStatus.LabelType = LabelType.Success;
-                                hlAccountStatus.Text = "Enabled - Card on File";
+                                hlAccountStatus.Text = "Enabled - Card on file";
                                 accountValid = true;
                                 break;
                             case SparkDataApi.AccountStatus.InvalidSparkDataKey:
                                 hlAccountStatus.LabelType = LabelType.Warning;
-                                hlAccountStatus.Text = "Account does not have a Name";
+                                hlAccountStatus.Text = "Invalid Spark Data Key";
                                 break;
                             case SparkDataApi.AccountStatus.EnabledCardNoExpirationDate:
                                 hlAccountStatus.LabelType = LabelType.Warning;
-                                hlAccountStatus.Text = "Enabled - Card Expiration Date not on File";
+                                hlAccountStatus.Text = "Enabled - Card expiration date not on file";
                                 break;
                         }
 
@@ -496,7 +496,7 @@ namespace RockWeb.Blocks.Administration
                     catch
                     {
                         hlAccountStatus.LabelType = LabelType.Danger;
-                        hlAccountStatus.Text = "Error Connecting to Spark Server";
+                        hlAccountStatus.Text = "Error connecting to Spark server";
                     }
 
                     cbNcoaConfiguration.Checked = _sparkDataConfig.NcoaSettings.IsEnabled && accountValid;

@@ -242,8 +242,7 @@ namespace Rock.Utility.NcoaApi
                     throw new Exception( "TrueNCOA returned an error creating the report" );
                 }
 
-                bool processing = ( file.Status == "Import" || file.Status == "Importing" || file.Status == "Parse" || file.Status == "Parsing" || file.Status == "Report" || file.Status == "Reporting" || file.Status == "Process" || file.Status == "Processing" );
-                return !processing;
+                return file.Status == "Processed";
             }
             catch ( Exception ex )
             {
@@ -313,8 +312,7 @@ namespace Rock.Utility.NcoaApi
                 try
                 {
                     TrueNcoaResponse file = JsonConvert.DeserializeObject<TrueNcoaResponse>( response.Content );
-                    bool exporting = ( file.Status == "Export" || file.Status == "Exporting" );
-                    return !exporting;
+                    return file.Status == "Exported" || file.Status == "Processed";
                 }
                 catch
                 {

@@ -62,7 +62,7 @@
                     <asp:Panel ID="pnlSparkDataEdit" runat="server" Visible="false">
                         <p> For more information about your account, or to update your payment information please visit your organization's profile on the
                         Rock RMS website.</p>
-                        <p><a href="https://www.rockrms.com/">Organization Profile</a></p>
+                        <p><a href="https://www.rockrms.com/sparkdatalink">Organization Profile</a></p>
                         <asp:ValidationSummary ID="vsSparkDataEdit" runat="server" HeaderText="Please Correct the Following" ValidationGroup="SparkDataEditValidationGroup" CssClass="alert alert-validation" />
                         <div class="row">
                             <div class="col-md-6">
@@ -151,7 +151,7 @@
                             <div class="actions margin-t-lg">
                                 <Rock:BootstrapButton ID="bbtnNcoaSaveConfig" runat="server" CssClass="btn btn-primary" AccessKey="s" ToolTip="Alt+s" OnClick="bbtnNcoaSaveConfig_Click" Text="Save" Enabled="false"
                                     DataLoadingText="&lt;i class='fa fa-refresh fa-spin'&gt;&lt;/i&gt; Saving" ValidationGroup="NcoaValidationGroup"
-                                    CompletedText="Success" CompletedMessage="&nbsp;Changes Have Been Saved!" CompletedDuration="2">
+                                    CompletedText="Done" CompletedMessage="<div class='margin-t-md alert alert-success'>Changes have been saved.</div>" CompletedDuration="3">
                                 </Rock:BootstrapButton>
                             </div>
                         </asp:Panel>
