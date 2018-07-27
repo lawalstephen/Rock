@@ -318,9 +318,9 @@
     <Compile Include="Migrations\Version 8.0\Version 1.8.0\201806222017201_V8Installers.Designer.cs">
       <DependentUpon>201806222017201_V8Installers.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201806191944509_NcoaHistory_AddReportExportId.cs" />
-    <Compile Include="Migrations\201806191944509_NcoaHistory_AddReportExportId.Designer.cs">
-      <DependentUpon>201806191944509_NcoaHistory_AddReportExportId.cs</DependentUpon>
+    <Compile Include="Migrations\201806191944509_SparkData.cs" />
+    <Compile Include="Migrations\201806191944509_SparkData.Designer.cs">
+      <DependentUpon>201806191944509_SparkData.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\RockMigrationSQL.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -3092,8 +3092,8 @@
     <EmbeddedResource Include="Migrations\Version 8.0\Version 1.8.0\201806222017201_V8Installers.resx">
       <DependentUpon>201806222017201_V8Installers.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201806191944509_NcoaHistory_AddReportExportId.resx">
-      <DependentUpon>201806191944509_NcoaHistory_AddReportExportId.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201806191944509_SparkData.resx">
+      <DependentUpon>201806191944509_SparkData.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\Version 7.0\Version 1.7.1\201801121251097_InteractionBlocks.resx">
       <DependentUpon>201801121251097_InteractionBlocks.cs</DependentUpon>
